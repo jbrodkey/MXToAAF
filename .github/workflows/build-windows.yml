@@ -1,0 +1,71 @@
+name: Build Windows Executable
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build executable
+        run: |
+          python -m PyInstaller `
+            --noconfirm `
+            --clean `
+            --windowed `
+            --hidden-import=tkinter `
+            --name "MXToAAF" `
+            mxto_aaf_gui.py
+      
+      - name: Create distribution folder
+        run: |
+          if (Test-Path "dist\MXToAAF") {
+            Copy-Item "dist\MXToAAF" -Destination "dist_final\MXToAAF" -Recurse
+          } else {
+            mkdir "dist_final"
+            Copy-Item "dist\MXToAAF" -Destination "dist_final\" -Recurse
+          }
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: MXToAAF-Windows
+          path: dist/MXToAAF
+
+  create-release:
+    needs: build-windows
+    runs-on: windows-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: MXToAAF-Windows
+      
+      - name: Create Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false

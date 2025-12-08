@@ -46,7 +46,8 @@ def launch_gui():
     embed_var = tk.BooleanVar(value=True)
     csv_var = tk.BooleanVar(value=False)
     meta_csv_var = tk.BooleanVar(value=False)
-    last_outputs = {'paths': []}
+    last_outputs = {'paths': [], 'last_output_path': None}
+    progress_var = tk.StringVar(value="")
     status_var = tk.StringVar(value="")
     cancel_event = threading.Event()
 
@@ -55,7 +56,7 @@ def launch_gui():
         log_text.insert('end', str(msg) + "\n")
         log_text.see('end')
         log_text.configure(state='disabled')
-        # Track output folder for Open button
+        # Track output folder for Open button and parse progress
         try:
             s = str(msg)
             if "Output:" in s:
@@ -68,6 +69,14 @@ def launch_gui():
                         open_btn.configure(state='normal')
                     except Exception:
                         pass
+            # Parse progress "X/Y" from batch processing output
+            if "/" in s and "%" in s:
+                # Extract X/Y from progress bar line like "1/18 (5.6%)"
+                parts = s.split()
+                for part in parts:
+                    if "/" in part and part[0].isdigit():
+                        progress_var.set(f"Processing {part}")
+                        break
         except Exception:
             pass
 
@@ -108,9 +117,42 @@ def launch_gui():
         if not inp:
             messagebox.showerror("Missing input", "Please select a music file or directory.")
             return
+        
+        # Verify source still exists
+        if not os.path.exists(inp):
+            messagebox.showerror("Source not found", "The selected source is not available")
+            return
+        
+        # Track if output was manually specified or left blank for default
+        output_was_blank = not outp
+        
+        # Always ensure output path uses AAFs folder structure
         if not outp:
-            outp = os.path.join(os.path.dirname(inp), "aaf_output") if os.path.isfile(inp) else os.path.join(inp, "aaf_output")
-            out_var.set(outp)
+            # Default behavior: AAFs folder at parent level with directory name preserved
+            if os.path.isfile(inp):
+                # For files: AAFs next to the file
+                outp = os.path.join(os.path.dirname(inp), "AAFs")
+            else:
+                # For directories: AAFs as sibling, with selected dir name included in output path
+                # This preserves the directory structure under AAFs
+                # e.g., select "AC_DC/Back In Black" → output to "AAFs/AC_DC/Back In Black"
+                dir_path = inp.rstrip('/\\')
+                dir_name = os.path.basename(dir_path)
+                parent = os.path.dirname(dir_path)
+                parent_name = os.path.basename(parent) if parent else ""
+                
+                # Include parent directory name if it exists (preserve one level of structure)
+                if parent_name:
+                    outp = os.path.join(os.path.dirname(parent), "AAFs", parent_name, dir_name)
+                else:
+                    outp = os.path.join(parent, "AAFs", dir_name)
+        else:
+            # If manually set, force it to end with AAFs folder
+            if not outp.rstrip('/\\').endswith("AAFs"):
+                outp = os.path.join(outp, "AAFs")
+            else:
+                # If user already specified AAFs, use as-is
+                outp = outp.rstrip('/\\')
 
         cancel_event.clear()
         run_btn.configure(state='disabled')
@@ -121,7 +163,10 @@ def launch_gui():
             log(f"Frame rate: {fps} fps")
             log(f"Embed audio: {'Yes' if embed else 'No'}")
             log(f"Input: {inp}")
+            # Only show output in log, don't populate the field if it was left blank
             log(f"Output: {outp}")
+            # Store actual output path for Open button
+            last_outputs['last_output_path'] = outp
             # Animate dots to show activity before first progress line
             import time
             log_text.configure(state='normal')
@@ -225,13 +270,17 @@ def launch_gui():
                     pass
                 messagebox.showinfo("Done", "AAF creation completed.")
             except Exception as e:
-                if str(e).strip():  # Only show error if there's actually an error message
+                error_str = str(e)
+                # Check for common ffmpeg/source not found errors
+                if "returned non-zero exit status" in error_str or "No such file" in error_str or not os.path.exists(inp):
+                    messagebox.showerror("Source not found", f"The source file or directory is no longer available or cannot be accessed:\n{inp}")
+                elif error_str.strip():
                     log(f"Error: {e}")
-                    try:
-                        status_var.set("Error — see log")
-                    except Exception:
-                        pass
                     messagebox.showerror("Error", f"AAF creation failed: {e}")
+                try:
+                    progress_var.set("")
+                except Exception:
+                    pass
             finally:
                 run_btn.configure(state='normal')
                 cancel_btn.configure(state='disabled')
@@ -246,8 +295,9 @@ def launch_gui():
         log_text.configure(state='normal')
         log_text.delete('1.0', 'end')
         log_text.configure(state='disabled')
-        input_var.set('')
+        # Only clear output field (keep input field)
         out_var.set('')
+        progress_var.set('')
         try:
             open_btn.pack_forget()
             open_btn.configure(state='disabled')
@@ -255,7 +305,8 @@ def launch_gui():
             pass
 
     def open_output_location():
-        outp = out_var.get().strip()
+        # Use the last output path from processing, not the field value
+        outp = last_outputs.get('last_output_path') or out_var.get().strip()
         if outp and os.path.isdir(outp):
             try:
                 if sys.platform == 'darwin':
@@ -335,6 +386,8 @@ def launch_gui():
     log_header = ttk.Frame(frm)
     log_header.grid(row=8, column=0, columnspan=3, sticky='ew', pady=(0, 2))
     ttk.Label(log_header, text="Output Log").pack(side='left')
+    progress_lbl = ttk.Label(log_header, textvariable=progress_var, foreground="#555555")
+    progress_lbl.pack(side='left', padx=(12, 0))
     ttk.Button(log_header, text="Clear", command=clear_log, width=8).pack(side='right')
 
     log_text = ScrolledText(frm, height=16, state='disabled')
@@ -365,10 +418,39 @@ def launch_gui():
 
     frm.columnconfigure(0, weight=1)
 
-    # Redirect stdout to log
+    # Redirect stdout to log with smart handling of \r (carriage return) for progress bars
     class StdoutRedirector:
+        def __init__(self):
+            self.last_was_carriage_return = False
+            
         def write(self, message):
-            log(message.rstrip('\n')) if message.strip() else None
+            if not message:
+                return
+            
+            # Handle carriage return (\r) - used by progress bars to update same line
+            if '\r' in message:
+                # Split by \r and process each part
+                parts = message.split('\r')
+                for i, part in enumerate(parts):
+                    if not part.strip():
+                        continue
+                    
+                    if i > 0 or self.last_was_carriage_return:
+                        # Replace last line in log
+                        log_text.configure(state='normal')
+                        log_text.delete("end-2l", "end-1l")
+                        log_text.configure(state='disabled')
+                    
+                    if part.strip():
+                        log(part.rstrip('\n'))
+                
+                self.last_was_carriage_return = True
+            else:
+                # Normal output
+                if message.strip():
+                    log(message.rstrip('\n'))
+                self.last_was_carriage_return = False
+                
         def flush(self):
             pass
 
