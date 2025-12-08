@@ -31,6 +31,7 @@ jobs:
           python -m PyInstaller `
             --noconfirm `
             --clean `
+            --onefile `
             --windowed `
             --hidden-import=tkinter `
             --name "MXToAAF" `
@@ -38,15 +39,13 @@ jobs:
       
       - name: Create distribution folder
         run: |
-          if (Test-Path "dist\MXToAAF") {
-            Copy-Item "dist\MXToAAF" -Destination "dist_final\MXToAAF" -Recurse
-          } else {
-            mkdir "dist_final"
-            Copy-Item "dist\MXToAAF" -Destination "dist_final\" -Recurse
-          }
+          mkdir dist_package
+          Copy-Item "dist\MXToAAF.exe" -Destination "dist_package\"
+          Copy-Item "LICENSES.txt" -Destination "dist_package\"
+          Copy-Item "docs\README_windows.md" -Destination "dist_package\README.md"
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MXToAAF-Windows
-          path: dist/MXToAAF
+          path: dist_package

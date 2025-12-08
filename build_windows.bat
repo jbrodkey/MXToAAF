@@ -51,6 +51,7 @@ echo Building application...
 python -m PyInstaller ^
     --noconfirm ^
     --clean ^
+    --onefile ^
     --windowed ^
     --hidden-import=tkinter ^
     --name "MXToAAF" ^
@@ -63,14 +64,25 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Create distribution folder with exe and documentation
+echo.
+echo Creating distribution package...
+mkdir dist_package 2>nul
+copy dist\MXToAAF.exe dist_package\
+copy LICENSES.txt dist_package\
+copy docs\README_windows.md dist_package\README.md
+
 echo.
 echo Build complete!
 echo.
-echo Executable location: dist\MXToAAF\MXToAAF.exe
+echo Distribution package: dist_package\
+echo   - MXToAAF.exe
+echo   - README.md
+echo   - LICENSES.txt
 echo.
 echo To run the app:
-echo   dist\MXToAAF\MXToAAF.exe
+echo   dist_package\MXToAAF.exe
 echo.
-echo To distribute, zip the entire dist\MXToAAF folder.
+echo To distribute, zip the entire dist_package folder.
 echo.
 pause
