@@ -492,32 +492,45 @@ def launch_gui():
     center_lbl.bind("<Button-1>", open_website)
 
     app_version = get_app_version()
+
+    # On Windows/Linux, use a small Help menu button in the footer to avoid the white menubar
+    help_btn = None
+    if sys.platform != 'darwin':
+        help_btn = ttk.Menubutton(footer, text="Help")
+        help_menu_btn = tk.Menu(help_btn, tearoff=0)
+        help_menu_btn.add_command(label="MXToAAF Help", command=show_help)
+        help_menu_btn.add_command(label="License Info", command=show_license)
+        help_menu_btn.add_separator()
+        help_menu_btn.add_command(label="About MXToAAF", command=show_about)
+        help_btn['menu'] = help_menu_btn
+        help_btn.grid(row=0, column=2, sticky='e', padx=(8, 0))
+
     right_lbl = ttk.Label(footer, text=f"v{app_version}", font=copyright_font, anchor='e', justify='right')
-    right_lbl.grid(row=0, column=2, sticky='e')
+    right_lbl.grid(row=0, column=3 if help_btn else 2, sticky='e')
 
     footer.columnconfigure(0, weight=1)
     footer.columnconfigure(1, weight=1)
-    footer.columnconfigure(2, weight=1)
+    if help_btn:
+        footer.columnconfigure(2, weight=0)
+        footer.columnconfigure(3, weight=1)
+    else:
+        footer.columnconfigure(2, weight=1)
 
     frm.columnconfigure(0, weight=1)
 
     # Menubar with Help/About/License
-    menubar = tk.Menu(root)
-    help_menu = tk.Menu(menubar, tearoff=0)
-    help_menu.add_command(label="MXToAAF Help", command=show_help)
-    help_menu.add_command(label="License Info", command=show_license)
-    if sys.platform != 'darwin':
-        help_menu.add_separator()
-        help_menu.add_command(label="About MXToAAF", command=show_about)
-    menubar.add_cascade(label="Help", menu=help_menu)
-    root.config(menu=menubar)
-
-    # On macOS, map the standard About menu to our dialog
-    try:
-        if sys.platform == 'darwin':
+    if sys.platform == 'darwin':
+        # Native menubar on macOS
+        menubar = tk.Menu(root)
+        help_menu = tk.Menu(menubar, tearoff=0)
+        help_menu.add_command(label="MXToAAF Help", command=show_help)
+        help_menu.add_command(label="License Info", command=show_license)
+        menubar.add_cascade(label="Help", menu=help_menu)
+        root.config(menu=menubar)
+        try:
             root.createcommand('tkAboutDialog', show_about)
-    except Exception:
-        pass
+        except Exception:
+            pass
 
     # Redirect stdout to log with smart handling of \r (carriage return) for progress bars
     class StdoutRedirector:
