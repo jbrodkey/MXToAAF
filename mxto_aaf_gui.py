@@ -420,7 +420,7 @@ def launch_gui():
         help_menu_header.add_separator()
         help_menu_header.add_command(label="About MXToAAF", command=show_about)
         help_btn_header['menu'] = help_menu_header
-        help_btn_header.grid(row=0, column=0, sticky='w', pady=(0, 4))
+        help_btn_header.grid(row=0, column=0, sticky='w', pady=(0, 6))
 
     ttk.Label(frm, text="Music file or directory").grid(row=1, column=0, sticky='w')
 
