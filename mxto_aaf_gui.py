@@ -18,6 +18,7 @@ import sys
 import threading
 import subprocess
 import webbrowser
+import importlib.metadata as importlib_metadata
 
 
 def resource_path(relative_path: str) -> str:
@@ -27,6 +28,13 @@ def resource_path(relative_path: str) -> str:
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
+
+def get_app_version() -> str:
+    try:
+        return importlib_metadata.version("mxtoaaf")
+    except Exception:
+        return __version__
 
 from mxto_aaf.__version__ import __version__
 from mxto_aaf.batch import process_directory
@@ -327,34 +335,65 @@ def launch_gui():
             except Exception:
                 messagebox.showwarning("Open Location", "Could not open the AAF location.")
 
+    def load_text_file(path_candidates):
+        """Return text content from the first existing path in candidates list."""
+        for candidate in path_candidates:
+            try:
+                real = resource_path(candidate)
+                if os.path.exists(real):
+                    with open(real, "r", encoding="utf-8", errors="ignore") as f:
+                        return f.read()
+            except Exception:
+                continue
+        return "Content not available."
+
     def show_about():
         about = tk.Toplevel(root)
         about.title("About MXToAAF")
-        about.geometry("600x520")
+        about.geometry("520x420")
         about.transient(root)
         about.grab_set()
 
-        ttk.Label(about, text=f"MXToAAF v{__version__}", font=(None, 12, "bold")).pack(pady=(10, 2))
+        app_version = get_app_version()
+
+        ttk.Label(about, text=f"MXToAAF v{app_version}", font=(None, 12, "bold")).pack(pady=(10, 2))
         ttk.Label(about, text="Music to AAF Converter", font=(None, 10)).pack()
-        ttk.Label(about, text="© Jason Brodkey", font=(None, 10)).pack(pady=(0, 8))
+        ttk.Label(about, text="© Jason Brodkey", font=(None, 10)).pack(pady=(0, 10))
 
-        # License content
-        license_text = "License information not available."
-        try:
-            lic_path = resource_path("LICENSES.txt")
-            if os.path.exists(lic_path):
-                with open(lic_path, "r", encoding="utf-8", errors="ignore") as f:
-                    license_text = f.read()
-        except Exception:
-            pass
+        ttk.Button(about, text="Close", command=about.destroy).pack(pady=(8, 12))
 
-        ttk.Label(about, text="Licenses:").pack(anchor='w', padx=12)
-        lic_box = ScrolledText(about, height=24, wrap='word')
-        lic_box.pack(fill='both', expand=True, padx=12, pady=(2, 12))
-        lic_box.insert('1.0', license_text)
-        lic_box.configure(state='disabled')
+    def show_license():
+        lic_win = tk.Toplevel(root)
+        lic_win.title("License Information")
+        lic_win.geometry("720x560")
+        lic_win.transient(root)
+        lic_win.grab_set()
 
-        ttk.Button(about, text="Close", command=about.destroy).pack(pady=(0, 10))
+        license_text = load_text_file(["LICENSES.txt", "LICENSE.txt", "LICENSE"])
+
+        ttk.Label(lic_win, text="License Information", font=(None, 12, "bold")).pack(pady=(10, 4))
+        box = ScrolledText(lic_win, height=28, wrap='word')
+        box.pack(fill='both', expand=True, padx=12, pady=(2, 12))
+        box.insert('1.0', license_text)
+        box.configure(state='disabled')
+        ttk.Button(lic_win, text="Close", command=lic_win.destroy).pack(pady=(0, 10))
+
+    def show_help():
+        help_win = tk.Toplevel(root)
+        help_win.title("MXToAAF Help")
+        help_win.geometry("780x600")
+        help_win.transient(root)
+        help_win.grab_set()
+
+        readme_file = "docs/README_windows.md" if sys.platform.startswith("win") else "docs/README_mac.md"
+        help_text = load_text_file([readme_file, "README.md"])
+
+        ttk.Label(help_win, text="MXToAAF Help", font=(None, 12, "bold")).pack(pady=(10, 4))
+        box = ScrolledText(help_win, height=34, wrap='word')
+        box.pack(fill='both', expand=True, padx=12, pady=(2, 12))
+        box.insert('1.0', help_text)
+        box.configure(state='disabled')
+        ttk.Button(help_win, text="Close", command=help_win.destroy).pack(pady=(0, 10))
 
     # Layout
     frm = ttk.Frame(root, padding=12)
@@ -447,18 +486,32 @@ def launch_gui():
     center_lbl.grid(row=0, column=1)
     center_lbl.bind("<Button-1>", open_website)
 
-    about_btn = ttk.Button(footer, text="About", command=show_about, width=8)
-    about_btn.grid(row=0, column=2, sticky='e', padx=(8, 0))
-
-    right_lbl = ttk.Label(footer, text=f"v{__version__}", font=copyright_font, anchor='e', justify='right')
-    right_lbl.grid(row=0, column=3, sticky='e')
+    app_version = get_app_version()
+    right_lbl = ttk.Label(footer, text=f"v{app_version}", font=copyright_font, anchor='e', justify='right')
+    right_lbl.grid(row=0, column=2, sticky='e')
 
     footer.columnconfigure(0, weight=1)
     footer.columnconfigure(1, weight=1)
-    footer.columnconfigure(2, weight=0)
-    footer.columnconfigure(3, weight=1)
+    footer.columnconfigure(2, weight=1)
 
     frm.columnconfigure(0, weight=1)
+
+    # Menubar with Help/About/License
+    menubar = tk.Menu(root)
+    help_menu = tk.Menu(menubar, tearoff=0)
+    help_menu.add_command(label="MXToAAF Help", command=show_help)
+    help_menu.add_command(label="License Info", command=show_license)
+    help_menu.add_separator()
+    help_menu.add_command(label="About MXToAAF", command=show_about)
+    menubar.add_cascade(label="Help", menu=help_menu)
+    root.config(menu=menubar)
+
+    # On macOS, wire the standard About item to our dialog
+    try:
+        if sys.platform == 'darwin':
+            root.createcommand('tkAboutDialog', show_about)
+    except Exception:
+        pass
 
     # Redirect stdout to log with smart handling of \r (carriage return) for progress bars
     class StdoutRedirector:

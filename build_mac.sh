@@ -31,6 +31,7 @@ python3 -m PyInstaller \
     --noconfirm \
     --clean \
     --add-data "LICENSES.txt:." \
+    --add-data "docs/README_mac.md:docs" \
     --windowed \
     --hidden-import=tkinter \
     --name "MXToAAF" \
