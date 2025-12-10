@@ -70,22 +70,22 @@ if errorlevel 1 (
 REM Create distribution folder with exe and documentation
 echo.
 echo Creating distribution package...
-mkdir dist_package 2>nul
-copy dist\MXToAAF.exe dist_package\
-copy LICENSES.txt dist_package\
-copy docs\README_windows.md dist_package\README.md
+mkdir dist_package\MXToAAF 2>nul
+copy dist\MXToAAF.exe dist_package\MXToAAF\
+copy LICENSES.txt dist_package\MXToAAF\
+copy docs\README_windows.md dist_package\MXToAAF\README.md
 
 echo.
 echo Build complete!
 echo.
-echo Distribution package: dist_package\
+echo Distribution package: dist_package\MXToAAF\
 echo   - MXToAAF.exe
 echo   - README.md
 echo   - LICENSES.txt
 echo.
 echo To run the app:
-echo   dist_package\MXToAAF.exe
+echo   dist_package\MXToAAF\MXToAAF.exe
 echo.
-echo To distribute, zip the entire dist_package folder.
+echo To distribute, zip the entire dist_package\MXToAAF folder.
 echo.
 pause

@@ -42,13 +42,13 @@ jobs:
       
       - name: Create distribution folder
         run: |
-          mkdir dist_package
-          Copy-Item "dist\MXToAAF.exe" -Destination "dist_package\"
-          Copy-Item "LICENSES.txt" -Destination "dist_package\"
-          Copy-Item "docs\README_windows.md" -Destination "dist_package\README.md"
+          mkdir dist_package\MXToAAF
+          Copy-Item "dist\MXToAAF.exe" -Destination "dist_package\MXToAAF\"
+          Copy-Item "LICENSES.txt" -Destination "dist_package\MXToAAF\"
+          Copy-Item "docs\README_windows.md" -Destination "dist_package\MXToAAF\README.md"
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: MXToAAF
-          path: dist_package
+          path: dist_package/MXToAAF
