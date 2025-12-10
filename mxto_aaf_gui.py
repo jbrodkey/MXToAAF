@@ -413,14 +413,14 @@ def launch_gui():
     # Input header and Help (Windows/Linux)
     help_btn_header = None
     if sys.platform != 'darwin':
-        help_btn_header = ttk.Menubutton(frm, text="Help", padding=(0, 0, 0, 0))
+        help_btn_header = ttk.Menubutton(frm, text="Help")
         help_menu_header = tk.Menu(help_btn_header, tearoff=0)
         help_menu_header.add_command(label="MXToAAF Help", command=show_help)
         help_menu_header.add_command(label="License Info", command=show_license)
         help_menu_header.add_separator()
         help_menu_header.add_command(label="About MXToAAF", command=show_about)
         help_btn_header['menu'] = help_menu_header
-        help_btn_header.grid(row=0, column=0, sticky='w', pady=(0, 0))
+        help_btn_header.grid(row=0, column=0, sticky='w', pady=(0, 4))
 
     ttk.Label(frm, text="Music file or directory").grid(row=1, column=0, sticky='w')
 
