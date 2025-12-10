@@ -54,6 +54,7 @@ python -m PyInstaller ^
     --icon "icons/win/MXToAAF.ico" ^
     --add-data "LICENSES.txt;." ^
     --add-data "docs/README_windows.md;docs" ^
+    --add-data "icons/win/MXToAAF.ico;icons/win" ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^

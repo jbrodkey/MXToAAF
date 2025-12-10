@@ -410,8 +410,7 @@ def launch_gui():
     frm = ttk.Frame(root, padding=12)
     frm.pack(fill='both', expand=True)
 
-    # Input
-    ttk.Label(frm, text="Music file or directory").grid(row=0, column=0, sticky='w')
+    # Input header and Help (Windows/Linux)
     help_btn_header = None
     if sys.platform != 'darwin':
         help_btn_header = ttk.Menubutton(frm, text="Help")
@@ -421,32 +420,34 @@ def launch_gui():
         help_menu_header.add_separator()
         help_menu_header.add_command(label="About MXToAAF", command=show_about)
         help_btn_header['menu'] = help_menu_header
-        help_btn_header.grid(row=0, column=2, sticky='e')
+        help_btn_header.grid(row=0, column=0, sticky='w', pady=(0, 4))
+
+    ttk.Label(frm, text="Music file or directory").grid(row=1, column=0, sticky='w')
 
     input_entry = ttk.Entry(frm, textvariable=input_var, width=60)
-    input_entry.grid(row=1, column=0, columnspan=2, sticky='we', pady=(1, 0))
+    input_entry.grid(row=2, column=0, columnspan=2, sticky='we', pady=(1, 0))
     # Place the buttons in a frame in the same row as the entry
     input_btns = ttk.Frame(frm)
-    input_btns.grid(row=1, column=2, sticky='w', pady=0)
+    input_btns.grid(row=2, column=2, sticky='w', pady=0)
     ttk.Button(input_btns, text="File…", command=browse_input_file).grid(row=0, column=0, padx=(0, 4), pady=0)
     ttk.Button(input_btns, text="Folder…", command=browse_input_dir).grid(row=0, column=1, pady=0)
 
     # Output
-    ttk.Label(frm, text="Output Folder for AAFs").grid(row=2, column=0, sticky='w', pady=(6, 0))
+    ttk.Label(frm, text="Output Folder for AAFs").grid(row=3, column=0, sticky='w', pady=(6, 0))
     out_entry = ttk.Entry(frm, textvariable=out_var, width=60)
-    out_entry.grid(row=3, column=0, columnspan=2, sticky='we', pady=(1, 0))
-    ttk.Button(frm, text="Browse…", command=browse_out).grid(row=3, column=2, sticky='w', pady=0)
+    out_entry.grid(row=4, column=0, columnspan=2, sticky='we', pady=(1, 0))
+    ttk.Button(frm, text="Browse…", command=browse_out).grid(row=4, column=2, sticky='w', pady=0)
 
     # FPS
     fps_row = ttk.Frame(frm)
-    fps_row.grid(row=4, column=0, columnspan=3, sticky='w', pady=(6, 8))
+    fps_row.grid(row=5, column=0, columnspan=3, sticky='w', pady=(6, 8))
     ttk.Label(fps_row, text="FPS:").pack(side='left')
     ttk.Entry(fps_row, textvariable=fps_var, width=8).pack(side='left', padx=(4, 0))
     ttk.Label(fps_row, text="(default 24)").pack(side='left', padx=(6, 0))
 
     # Advanced options toggle (collapsed by default)
     adv_frame = ttk.Frame(frm)
-    adv_frame.grid(row=5, column=0, columnspan=3, sticky='w', pady=(0, 4))
+    adv_frame.grid(row=6, column=0, columnspan=3, sticky='w', pady=(0, 4))
     adv_expanded = tk.BooleanVar(value=False)
 
     def toggle_advanced():
@@ -464,7 +465,7 @@ def launch_gui():
 
     # Advanced container with all 3 checkboxes
     adv_container = ttk.Frame(frm)
-    adv_container.grid(row=6, column=0, columnspan=3, sticky='w', pady=(0, 8))
+    adv_container.grid(row=7, column=0, columnspan=3, sticky='w', pady=(0, 8))
     ttk.Checkbutton(adv_container, text="Embed audio in AAF (recommended)", variable=embed_var).pack(side='left')
     ttk.Checkbutton(adv_container, text="Export results CSV", variable=csv_var).pack(side='left', padx=(12, 0))
     ttk.Checkbutton(adv_container, text="Export metadata CSV", variable=meta_csv_var).pack(side='left', padx=(12, 0))
@@ -472,7 +473,7 @@ def launch_gui():
 
     # Action buttons
     buttons_row = ttk.Frame(frm)
-    buttons_row.grid(row=7, column=0, columnspan=3, sticky='ew', pady=(0, 8))
+    buttons_row.grid(row=8, column=0, columnspan=3, sticky='ew', pady=(0, 8))
     run_btn = ttk.Button(buttons_row, text="Run", command=run_clicked)
     run_btn.pack(side='left')
     cancel_btn = ttk.Button(buttons_row, text="Cancel", command=cancel_clicked, state='disabled')
@@ -483,20 +484,20 @@ def launch_gui():
 
     # Log area with clear button
     log_header = ttk.Frame(frm)
-    log_header.grid(row=8, column=0, columnspan=3, sticky='ew', pady=(0, 2))
+    log_header.grid(row=9, column=0, columnspan=3, sticky='ew', pady=(0, 2))
     ttk.Label(log_header, text="Output Log").pack(side='left')
     progress_lbl = ttk.Label(log_header, textvariable=progress_var, foreground="#555555")
     progress_lbl.pack(side='left', padx=(12, 0))
     ttk.Button(log_header, text="Clear", command=clear_log, width=8).pack(side='right')
 
     log_text = ScrolledText(frm, height=16, state='disabled')
-    log_text.grid(row=9, column=0, columnspan=3, sticky='nsew')
-    frm.rowconfigure(9, weight=1)
+    log_text.grid(row=10, column=0, columnspan=3, sticky='nsew')
+    frm.rowconfigure(10, weight=1)
 
     # Copyright, website, and version labels below log
     copyright_font = (None, 10)
     footer = ttk.Frame(frm)
-    footer.grid(row=10, column=0, columnspan=3, sticky='ew', pady=(4, 0))
+    footer.grid(row=11, column=0, columnspan=3, sticky='ew', pady=(4, 0))
 
     def open_website(event=None):
         webbrowser.open_new_tab('https://www.editcandy.com')
