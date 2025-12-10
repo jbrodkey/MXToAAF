@@ -48,6 +48,18 @@ echo "Adding license and documentation..."
 cp LICENSES.txt dist/MXToAAF.app/Contents/MacOS/
 cp docs/README_mac.md dist/MXToAAF.app/Contents/MacOS/README.md
 
+# Update Info.plist version to match package __version__
+VERSION=$(python3 - <<'PY'
+from mxto_aaf.__version__ import __version__
+print(__version__)
+PY
+)
+INFO_PLIST="dist/MXToAAF.app/Contents/Info.plist"
+if [ -f "$INFO_PLIST" ]; then
+    /usr/libexec/PlistBuddy -c "Set :CFBundleShortVersionString $VERSION" "$INFO_PLIST" || true
+    /usr/libexec/PlistBuddy -c "Set :CFBundleVersion $VERSION" "$INFO_PLIST" || true
+fi
+
 echo ""
 echo "✓ Build complete!"
 echo ""

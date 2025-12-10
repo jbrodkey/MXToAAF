@@ -31,10 +31,15 @@ def resource_path(relative_path: str) -> str:
 
 
 def get_app_version() -> str:
+    # Prefer the packaged version string; fall back to metadata if installed as a wheel
+    try:
+        return __version__
+    except Exception:
+        pass
     try:
         return importlib_metadata.version("mxtoaaf")
     except Exception:
-        return __version__
+        return "unknown"
 
 from mxto_aaf.__version__ import __version__
 from mxto_aaf.batch import process_directory
