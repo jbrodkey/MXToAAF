@@ -51,6 +51,8 @@ echo Building application...
 python -m PyInstaller ^
     --noconfirm ^
     --clean ^
+    --icon "icons/win/MXToAAF.ico" ^
+    --add-data "LICENSES.txt;." ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^

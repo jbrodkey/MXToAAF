@@ -30,6 +30,7 @@ echo "Building application..."
 python3 -m PyInstaller \
     --noconfirm \
     --clean \
+    --add-data "LICENSES.txt:." \
     --windowed \
     --hidden-import=tkinter \
     --name "MXToAAF" \
@@ -40,6 +41,11 @@ if [ $? -ne 0 ]; then
     echo "Build failed!"
     exit 1
 fi
+
+# Copy license and documentation into the app bundle
+echo "Adding license and documentation..."
+cp LICENSES.txt dist/MXToAAF.app/Contents/MacOS/
+cp docs/README_mac.md dist/MXToAAF.app/Contents/MacOS/README.md
 
 echo ""
 echo "✓ Build complete!"

@@ -19,6 +19,15 @@ import threading
 import subprocess
 import webbrowser
 
+
+def resource_path(relative_path: str) -> str:
+    """Return absolute path to resource, works for dev and PyInstaller."""
+    try:
+        base_path = sys._MEIPASS  # type: ignore[attr-defined]
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 from mxto_aaf.__version__ import __version__
 from mxto_aaf.batch import process_directory
 from mxto_aaf.metadata import extract_music_metadata
@@ -318,6 +327,35 @@ def launch_gui():
             except Exception:
                 messagebox.showwarning("Open Location", "Could not open the AAF location.")
 
+    def show_about():
+        about = tk.Toplevel(root)
+        about.title("About MXToAAF")
+        about.geometry("600x520")
+        about.transient(root)
+        about.grab_set()
+
+        ttk.Label(about, text=f"MXToAAF v{__version__}", font=(None, 12, "bold")).pack(pady=(10, 2))
+        ttk.Label(about, text="Music to AAF Converter", font=(None, 10)).pack()
+        ttk.Label(about, text="© Jason Brodkey", font=(None, 10)).pack(pady=(0, 8))
+
+        # License content
+        license_text = "License information not available."
+        try:
+            lic_path = resource_path("LICENSES.txt")
+            if os.path.exists(lic_path):
+                with open(lic_path, "r", encoding="utf-8", errors="ignore") as f:
+                    license_text = f.read()
+        except Exception:
+            pass
+
+        ttk.Label(about, text="Licenses:").pack(anchor='w', padx=12)
+        lic_box = ScrolledText(about, height=24, wrap='word')
+        lic_box.pack(fill='both', expand=True, padx=12, pady=(2, 12))
+        lic_box.insert('1.0', license_text)
+        lic_box.configure(state='disabled')
+
+        ttk.Button(about, text="Close", command=about.destroy).pack(pady=(0, 10))
+
     # Layout
     frm = ttk.Frame(root, padding=12)
     frm.pack(fill='both', expand=True)
@@ -409,12 +447,16 @@ def launch_gui():
     center_lbl.grid(row=0, column=1)
     center_lbl.bind("<Button-1>", open_website)
 
+    about_btn = ttk.Button(footer, text="About", command=show_about, width=8)
+    about_btn.grid(row=0, column=2, sticky='e', padx=(8, 0))
+
     right_lbl = ttk.Label(footer, text=f"v{__version__}", font=copyright_font, anchor='e', justify='right')
-    right_lbl.grid(row=0, column=2, sticky='e')
+    right_lbl.grid(row=0, column=3, sticky='e')
 
     footer.columnconfigure(0, weight=1)
     footer.columnconfigure(1, weight=1)
-    footer.columnconfigure(2, weight=1)
+    footer.columnconfigure(2, weight=0)
+    footer.columnconfigure(3, weight=1)
 
     frm.columnconfigure(0, weight=1)
 
