@@ -355,7 +355,7 @@ def launch_gui():
     def show_about():
         about = tk.Toplevel(root)
         about.title("About MXToAAF")
-        about.geometry("520x420")
+        about.geometry("420x260")
         about.transient(root)
         about.grab_set()
 
@@ -506,12 +506,13 @@ def launch_gui():
     help_menu = tk.Menu(menubar, tearoff=0)
     help_menu.add_command(label="MXToAAF Help", command=show_help)
     help_menu.add_command(label="License Info", command=show_license)
-    help_menu.add_separator()
-    help_menu.add_command(label="About MXToAAF", command=show_about)
+    if sys.platform != 'darwin':
+        help_menu.add_separator()
+        help_menu.add_command(label="About MXToAAF", command=show_about)
     menubar.add_cascade(label="Help", menu=help_menu)
     root.config(menu=menubar)
 
-    # On macOS, wire the standard About item to our dialog
+    # On macOS, map the standard About menu to our dialog
     try:
         if sys.platform == 'darwin':
             root.createcommand('tkAboutDialog', show_about)
