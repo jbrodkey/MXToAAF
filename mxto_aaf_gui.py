@@ -52,6 +52,12 @@ def launch_gui():
     root = tk.Tk()
     root.title("MXToAAF - Music to AAF Converter")
     root.geometry("680x520")
+    # Set window icon on Windows (PyInstaller extracts data to temp dir)
+    if sys.platform == 'win32':
+        try:
+            root.iconbitmap(resource_path("icons/win/MXToAAF.ico"))
+        except Exception:
+            pass
     # Use native theme only; do not paint custom colors so Aqua/Vista control appearance
     # This mirrors WAVsToALE behavior exactly.
     try:
@@ -406,6 +412,17 @@ def launch_gui():
 
     # Input
     ttk.Label(frm, text="Music file or directory").grid(row=0, column=0, sticky='w')
+    help_btn_header = None
+    if sys.platform != 'darwin':
+        help_btn_header = ttk.Menubutton(frm, text="Help")
+        help_menu_header = tk.Menu(help_btn_header, tearoff=0)
+        help_menu_header.add_command(label="MXToAAF Help", command=show_help)
+        help_menu_header.add_command(label="License Info", command=show_license)
+        help_menu_header.add_separator()
+        help_menu_header.add_command(label="About MXToAAF", command=show_about)
+        help_btn_header['menu'] = help_menu_header
+        help_btn_header.grid(row=0, column=2, sticky='e')
+
     input_entry = ttk.Entry(frm, textvariable=input_var, width=60)
     input_entry.grid(row=1, column=0, columnspan=2, sticky='we', pady=(1, 0))
     # Place the buttons in a frame in the same row as the entry
@@ -493,28 +510,12 @@ def launch_gui():
 
     app_version = get_app_version()
 
-    # On Windows/Linux, use a small Help menu button in the footer to avoid the white menubar
-    help_btn = None
-    if sys.platform != 'darwin':
-        help_btn = ttk.Menubutton(footer, text="Help")
-        help_menu_btn = tk.Menu(help_btn, tearoff=0)
-        help_menu_btn.add_command(label="MXToAAF Help", command=show_help)
-        help_menu_btn.add_command(label="License Info", command=show_license)
-        help_menu_btn.add_separator()
-        help_menu_btn.add_command(label="About MXToAAF", command=show_about)
-        help_btn['menu'] = help_menu_btn
-        help_btn.grid(row=0, column=2, sticky='e', padx=(8, 0))
-
     right_lbl = ttk.Label(footer, text=f"v{app_version}", font=copyright_font, anchor='e', justify='right')
-    right_lbl.grid(row=0, column=3 if help_btn else 2, sticky='e')
+    right_lbl.grid(row=0, column=2, sticky='e')
 
     footer.columnconfigure(0, weight=1)
     footer.columnconfigure(1, weight=1)
-    if help_btn:
-        footer.columnconfigure(2, weight=0)
-        footer.columnconfigure(3, weight=1)
-    else:
-        footer.columnconfigure(2, weight=1)
+    footer.columnconfigure(2, weight=1)
 
     frm.columnconfigure(0, weight=1)
 
