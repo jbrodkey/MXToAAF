@@ -133,6 +133,11 @@ def launch_gui():
         export_csv = csv_var.get()
         export_meta_csv = meta_csv_var.get()
         
+        # Normalize paths to use OS-appropriate slashes (fixes forward/backslash mixing on Windows)
+        inp = os.path.normpath(inp)
+        if outp:
+            outp = os.path.normpath(outp)
+        
         # Parse FPS
         try:
             fps = float(fps_var.get().strip() or "24")
