@@ -305,7 +305,10 @@ def launch_gui():
             except Exception as e:
                 error_str = str(e)
                 # Check for common ffmpeg/source not found errors
-                if "returned non-zero exit status" in error_str or "No such file" in error_str or not os.path.exists(inp):
+                if "returned non-zero exit status" in error_str:
+                    log(f"Error: {e}")
+                    messagebox.showerror("FFmpeg Error", f"FFmpeg processing failed. Check the log for details:\n{e}")
+                elif "No such file" in error_str or not os.path.exists(inp):
                     messagebox.showerror("Source not found", f"The source file or directory is no longer available or cannot be accessed:\n{inp}")
                 elif error_str.strip():
                     log(f"Error: {e}")

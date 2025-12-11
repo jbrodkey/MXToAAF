@@ -79,7 +79,11 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
         dst_path,
     ]
 
-    subprocess.run(cmd, check=True)
+    try:
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+    except subprocess.CalledProcessError as e:
+        error_msg = e.stderr or e.stdout or str(e)
+        raise RuntimeError(f"FFmpeg failed to convert {src_path}: {error_msg}") from e
 
 
 __all__ = ["ffmpeg_available", "convert_to_wav"]
