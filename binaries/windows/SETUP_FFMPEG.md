@@ -2,44 +2,45 @@
 
 This directory should contain `ffmpeg.exe` and `ffprobe.exe` for Windows builds.
 
-## Option 1: Download on macOS, Extract & Commit (Fastest)
+**IMPORTANT:** You must use a **static build** that includes all dependencies in the executable, or include all required DLL files.
 
-You can download the Windows FFmpeg binaries on macOS and extract them locally:
+## Option 1: Download Static Build on macOS (Recommended)
 
-1. **Download** - Visit one of these URLs in your browser and download the file:
-   - **Recommended:** https://builds.ffmpeg.org/builds/win64/gpl/ffmpeg-latest-win64-gpl-shared.zip
-   - **Alternative:** https://www.gyan.dev/ffmpeg/builds/ (click "full" under Latest Version)
-   - **Alternative:** https://github.com/BtbN/FFmpeg-Builds/releases (look for `ffmpeg-master-latest-win64-gpl.7z`)
+The easiest approach is to download a static build that doesn't require separate DLLs:
 
-2. **Extract** - After downloading (e.g., `ffmpeg-latest-win64-gpl-shared.zip`):
+1. **Download static build** - Visit in your browser:
+   - **BtbN Builds:** https://github.com/BtbN/FFmpeg-Builds/releases
+   - Look for: `ffmpeg-master-latest-win64-gpl-shared.zip` or `ffmpeg-master-latest-win64-lgpl-shared.zip`
+   - Download the `.zip` file (NOT .7z for easier extraction on Mac)
+
+2. **Extract** on your Mac:
    ```bash
    cd ~/Downloads
-   unzip ffmpeg-latest-win64-gpl-shared.zip  # or 7z x file.7z if it's .7z
-   cd ffmpeg-latest-win64-gpl-shared/bin
-   ls -la  # You should see ffmpeg.exe and ffprobe.exe
+   unzip ffmpeg-master-latest-win64-gpl-shared.zip
+   cd ffmpeg-master-latest-win64-gpl-shared/bin
+   ls -la  # You should see ffmpeg.exe, ffprobe.exe, and multiple .dll files
    ```
 
-3. **Copy to project**:
+3. **Copy ALL files to project** (executables AND DLLs):
    ```bash
-   cp ~/Downloads/ffmpeg-latest-win64-gpl-shared/bin/ffmpeg.exe /path/to/MXToAAF/binaries/windows/
-   cp ~/Downloads/ffmpeg-latest-win64-gpl-shared/bin/ffprobe.exe /path/to/MXToAAF/binaries/windows/
+   cp ~/Downloads/ffmpeg-master-latest-win64-gpl-shared/bin/*.exe /path/to/MXToAAF/binaries/windows/
+   cp ~/Downloads/ffmpeg-master-latest-win64-gpl-shared/bin/*.dll /path/to/MXToAAF/binaries/windows/
    ```
 
-4. **Verify**:
+4. **Verify** (should see ffmpeg.exe, ffprobe.exe, and DLL files):
    ```bash
    ls -lh /path/to/MXToAAF/binaries/windows/
-   # Should show ffmpeg.exe and ffprobe.exe
    ```
 
 5. **Commit**:
    ```bash
    cd /path/to/MXToAAF
-   git add binaries/windows/ffmpeg.exe binaries/windows/ffprobe.exe
-   git commit -m "add: Windows FFmpeg binaries"
+   git add binaries/windows/*.exe binaries/windows/*.dll
+   git commit -m "add: Windows FFmpeg binaries with DLL dependencies"
    git push origin main
    ```
 
-## Option 2: Automatic Download & Setup on Windows (For Future Use)
+## Option 2: Download on macOS, Extract & Commit (Alternative)
 
 On a Windows machine with PowerShell, run this from the project root:
 

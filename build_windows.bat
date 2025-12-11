@@ -73,8 +73,7 @@ python -m PyInstaller ^
     --add-data "LICENSES.txt;." ^
     --add-data "docs/README_windows.md;docs" ^
     --add-data "icons/win/MXToAAF.ico;icons/win" ^
-    --add-data "binaries/windows/ffmpeg.exe;binaries" ^
-    --add-data "binaries/windows/ffprobe.exe;binaries" ^
+    --add-data "binaries/windows;binaries" ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^
