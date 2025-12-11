@@ -63,8 +63,10 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
 
     # prefer explicit codec for 24-bit
     codec = "pcm_s24le" if bits == 24 else "pcm_s16le"
+    
+    ffmpeg_path = _get_ffmpeg_path()
     cmd = [
-        _get_ffmpeg_path(),
+        ffmpeg_path,
         "-y",
         "-v",
         "error",
@@ -79,8 +81,15 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
         dst_path,
     ]
 
+    # On Windows, add the binaries directory to PATH so FFmpeg can find DLLs
+    env = os.environ.copy()
+    if os.name == 'nt' and getattr(sys, 'frozen', False):
+        binaries_dir = os.path.dirname(ffmpeg_path)
+        env['PATH'] = binaries_dir + os.pathsep + env.get('PATH', '')
+        print(f"[DEBUG] Added to PATH for DLL loading: {binaries_dir}")
+
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
     except subprocess.CalledProcessError as e:
         error_msg = e.stderr or e.stdout or str(e)
         raise RuntimeError(f"FFmpeg failed to convert {src_path}: {error_msg}") from e
