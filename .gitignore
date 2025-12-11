@@ -30,3 +30,5 @@ WAVsToALE/
 # Temporary files
 *.tmp
 *.log
+# FFmpeg Windows DLLs (downloaded at build time)
+binaries/windows/*.dll

@@ -26,6 +26,24 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
       
+      - name: Download FFmpeg for Windows
+        run: |
+          echo "Downloading FFmpeg..."
+          Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip" -OutFile "ffmpeg.zip"
+          echo "Extracting FFmpeg..."
+          Expand-Archive "ffmpeg.zip" -DestinationPath "."
+          echo "Copying binaries (minimal audio-only set)..."
+          $ffmpegDir = Get-ChildItem -Directory -Filter "ffmpeg-*" | Select-Object -First 1
+          New-Item -ItemType Directory -Force -Path "binaries\windows"
+          Copy-Item "$($ffmpegDir.FullName)\bin\ffmpeg.exe" -Destination "binaries\windows\"
+          Copy-Item "$($ffmpegDir.FullName)\bin\ffprobe.exe" -Destination "binaries\windows\"
+          Copy-Item "$($ffmpegDir.FullName)\bin\avcodec-*.dll" -Destination "binaries\windows\"
+          Copy-Item "$($ffmpegDir.FullName)\bin\avformat-*.dll" -Destination "binaries\windows\"
+          Copy-Item "$($ffmpegDir.FullName)\bin\avutil-*.dll" -Destination "binaries\windows\"
+          Copy-Item "$($ffmpegDir.FullName)\bin\swresample-*.dll" -Destination "binaries\windows\"
+          echo "FFmpeg binaries ready:"
+          Get-ChildItem "binaries\windows"
+      
       - name: Build executable
         run: |
           python -m PyInstaller `
