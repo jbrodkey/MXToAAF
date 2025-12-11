@@ -16,6 +16,24 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Check for FFmpeg binaries
+if not exist "binaries\windows\ffmpeg.exe" (
+    echo Error: FFmpeg binaries not found in binaries\windows\
+    echo Please download ffmpeg.exe and ffprobe.exe from:
+    echo   https://www.gyan.dev/ffmpeg/builds/
+    echo And place them in: binaries\windows\
+    pause
+    exit /b 1
+)
+if not exist "binaries\windows\ffprobe.exe" (
+    echo Error: ffprobe.exe not found in binaries\windows\
+    echo Please download from https://www.gyan.dev/ffmpeg/builds/
+    echo And place in: binaries\windows\
+    pause
+    exit /b 1
+)
+echo ✓ Found FFmpeg binaries
+
 REM Check if PyInstaller is installed
 python -m pip show pyinstaller > nul 2>&1
 if errorlevel 1 (
@@ -45,9 +63,9 @@ if exist dist (
     rmdir /s /q dist
 )
 
-REM Build with PyInstaller
+REM Build with PyInstaller, bundling FFmpeg
 echo.
-echo Building application...
+echo Building application with bundled FFmpeg...
 python -m PyInstaller ^
     --noconfirm ^
     --clean ^
@@ -55,6 +73,8 @@ python -m PyInstaller ^
     --add-data "LICENSES.txt;." ^
     --add-data "docs/README_windows.md;docs" ^
     --add-data "icons/win/MXToAAF.ico;icons/win" ^
+    --add-data "binaries/windows/ffmpeg.exe;binaries" ^
+    --add-data "binaries/windows/ffprobe.exe;binaries" ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^
@@ -75,6 +95,22 @@ mkdir dist_package\MXToAAF 2>nul
 copy dist\MXToAAF.exe dist_package\MXToAAF\
 copy LICENSES.txt dist_package\MXToAAF\
 copy docs\README_windows.md dist_package\MXToAAF\README.md
+
+echo.
+echo Build complete!
+echo.
+echo Distribution package: dist_package\MXToAAF\
+echo   - MXToAAF.exe (includes bundled FFmpeg)
+echo   - README.md
+echo   - LICENSES.txt
+echo.
+echo To run the app:
+echo   dist_package\MXToAAF\MXToAAF.exe
+echo.
+echo To distribute, zip the entire dist_package\MXToAAF folder.
+echo.
+pause
+
 
 echo.
 echo Build complete!
