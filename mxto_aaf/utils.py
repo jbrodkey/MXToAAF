@@ -24,11 +24,33 @@ def _get_ffmpeg_path() -> str | None:
         else:  # macOS, Linux
             bundled_ffmpeg = os.path.join(base_path, 'binaries', 'ffmpeg')
         
+        # Debug: print what we're checking (will appear in console/logs)
+        print(f"[DEBUG] Checking for bundled FFmpeg at: {bundled_ffmpeg}")
+        print(f"[DEBUG] File exists: {os.path.isfile(bundled_ffmpeg)}")
+        print(f"[DEBUG] Base path (_MEIPASS): {base_path}")
+        
+        # List what's actually in the binaries directory
+        binaries_dir = os.path.join(base_path, 'binaries')
+        if os.path.isdir(binaries_dir):
+            print(f"[DEBUG] Contents of binaries directory:")
+            for item in os.listdir(binaries_dir):
+                print(f"[DEBUG]   - {item}")
+        else:
+            print(f"[DEBUG] Binaries directory does not exist: {binaries_dir}")
+        
         if os.path.isfile(bundled_ffmpeg):
+            print(f"[DEBUG] ✓ Using bundled FFmpeg: {bundled_ffmpeg}")
             return bundled_ffmpeg
+        else:
+            print(f"[DEBUG] ✗ Bundled FFmpeg not found, falling back to system PATH")
     
     # Fall back to system PATH
-    return shutil.which("ffmpeg")
+    system_ffmpeg = shutil.which("ffmpeg")
+    if system_ffmpeg:
+        print(f"[DEBUG] Using system FFmpeg: {system_ffmpeg}")
+    else:
+        print(f"[DEBUG] ✗ FFmpeg not found in system PATH either")
+    return system_ffmpeg
 
 
 def ffmpeg_available() -> bool:
