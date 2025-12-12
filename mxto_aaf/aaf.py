@@ -6,13 +6,15 @@ import os
 import wave
 import tempfile
 import hashlib
+import importlib.util
+import sys
 from pathlib import Path
 from .metadata import MusicMetadata
 
 try:
     import aaf2
-    import aaf2.auid
-    import aaf2.rational
+    print(f"[DEBUG] aaf2 spec: {importlib.util.find_spec('aaf2')}")
+    print(f"[DEBUG] sys.path: {sys.path}")
 except Exception as exc:  # pragma: no cover - optional runtime dep
     # Log why aaf2 import failed in frozen builds
     print(f"[DEBUG] aaf2 import failed: {exc}")

@@ -65,25 +65,8 @@ if exist dist (
 
 REM Build with PyInstaller, bundling FFmpeg
 echo.
-echo Building application with bundled FFmpeg...
-python -m PyInstaller ^
-    --noconfirm ^
-    --clean ^
-    --icon "icons/win/MXToAAF.ico" ^
-    --add-data "LICENSES.txt;." ^
-    --add-data "docs/README_windows.md;docs" ^
-    --add-data "icons/win/MXToAAF.ico;icons/win" ^
-    --add-binary "binaries/windows/ffmpeg.exe;binaries" ^
-    --add-binary "binaries/windows/*.dll;binaries" ^
-    --onefile ^
-    --windowed ^
-    --hidden-import=tkinter ^
-    --hidden-import=aaf2 ^
-    --hidden-import=aaf2.auid ^
-    --hidden-import=aaf2.rational ^
-    --hidden-import=aaf2.misc ^
-    --name "MXToAAF" ^
-    mxto_aaf_gui.py
+echo Building application with bundled FFmpeg via spec...
+python -m PyInstaller --clean mxtoaaf_windows.spec
 
 if errorlevel 1 (
     echo.
