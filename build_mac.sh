@@ -6,20 +6,11 @@ set -euo pipefail
 
 echo "Building MXToAAF for macOS..."
 
-# Check for FFmpeg binaries
-if [ ! -f "binaries/macos/ffmpeg" ] || [ ! -f "binaries/macos/ffprobe" ]; then
-    echo "FFmpeg binaries not found. Attempting to copy from system..."
-    mkdir -p binaries/macos
-    if command -v ffmpeg &> /dev/null && command -v ffprobe &> /dev/null; then
-        cp "$(which ffmpeg)" binaries/macos/
-        cp "$(which ffprobe)" binaries/macos/
-        chmod +x binaries/macos/ffmpeg binaries/macos/ffprobe
-        echo "✓ Copied FFmpeg from system"
-    else
-        echo "✗ FFmpeg not found in PATH"
-        echo "Please install FFmpeg (e.g., brew install ffmpeg) or place binaries in binaries/macos/"
-        exit 1
-    fi
+# Check for FFmpeg binary
+if [ ! -f "binaries/macos/ffmpeg" ]; then
+    echo "FFmpeg binary not found at binaries/macos/ffmpeg"
+    echo "Please run: ./build_minimal_ffmpeg_mac.sh"
+    exit 1
 fi
 
 # Check if PyInstaller is installed
@@ -49,7 +40,6 @@ python3 -m PyInstaller \
     --add-data "LICENSES.txt:." \
     --add-data "docs/README_mac.md:docs" \
     --add-data "binaries/macos/ffmpeg:binaries" \
-    --add-data "binaries/macos/ffprobe:binaries" \
     --windowed \
     --hidden-import=tkinter \
     --name "MXToAAF" \

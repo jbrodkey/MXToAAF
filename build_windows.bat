@@ -73,12 +73,12 @@ python -m PyInstaller ^
     --add-data "LICENSES.txt;." ^
     --add-data "docs/README_windows.md;docs" ^
     --add-data "icons/win/MXToAAF.ico;icons/win" ^
-    --add-data "binaries/windows;binaries" ^
+    --add-binary "binaries/windows/ffmpeg.exe;binaries" ^
+    --add-binary "binaries/windows/*.dll;binaries" ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^
-    --hidden-import=aaf2 ^
-    --collect-all aaf2 ^
+    --additional-hooks-dir=hooks ^
     --name "MXToAAF" ^
     mxto_aaf_gui.py
 

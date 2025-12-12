@@ -56,8 +56,7 @@ jobs:
             --onefile `
             --windowed `
             --hidden-import=tkinter `
-            --hidden-import=aaf2 `
-            --collect-all aaf2 `
+            --additional-hooks-dir=hooks `
             --name "MXToAAF" `
             mxto_aaf_gui.py
       

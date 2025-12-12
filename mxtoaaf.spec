@@ -5,7 +5,7 @@ a = Analysis(
     ['mxto_aaf_gui.py'],
     pathex=[],
     binaries=[],
-    datas=[('LICENSES.txt', '.'), ('docs/README_mac.md', 'docs'), ('binaries/macos/ffmpeg', 'binaries'), ('binaries/macos/ffprobe', 'binaries')],
+    datas=[('LICENSES.txt', '.'), ('docs/README_mac.md', 'docs'), ('binaries/macos/ffmpeg', 'binaries')],
     hiddenimports=['tkinter'],
     hookspath=[],
     hooksconfig={},
