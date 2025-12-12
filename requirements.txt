@@ -1,2 +1,2 @@
 mutagen>=1.46
-python-aaf2
+pyaaf2
