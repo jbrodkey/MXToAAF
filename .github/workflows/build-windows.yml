@@ -6,6 +6,7 @@ on:
       - main
     tags:
       - 'v*'
+  # Workflow file updated to use --add-binary for DLL bundling
 
 jobs:
   build-windows:
