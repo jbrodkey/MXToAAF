@@ -77,7 +77,7 @@ python -m PyInstaller ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^
-    --hidden-import=aaf2 ^
+    --collect-all aaf2 ^
     --name "MXToAAF" ^
     mxto_aaf_gui.py
 
