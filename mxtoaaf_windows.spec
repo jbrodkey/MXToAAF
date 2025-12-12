@@ -1,12 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
 from glob import glob
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
 block_cipher = None
 
-project_root = Path(__file__).parent
+try:
+    project_root = Path(__file__).resolve().parent
+except NameError:
+    # __file__ may be undefined in some build invocations; fall back to CWD
+    project_root = Path(os.getcwd()).resolve()
 binaries_dir = project_root / "binaries" / "windows"
 
 # Bundle all Windows binaries (ffmpeg.exe, ffprobe.exe, and DLLs)
