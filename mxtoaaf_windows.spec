@@ -1,7 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
-from glob import glob
 from pathlib import Path
 from PyInstaller.utils.hooks import collect_submodules
 
@@ -12,6 +11,7 @@ try:
 except NameError:
     # __file__ may be undefined in some build invocations; fall back to CWD
     project_root = Path(os.getcwd()).resolve()
+
 binaries_dir = project_root / "binaries" / "windows"
 
 # Bundle all Windows binaries (ffmpeg.exe, ffprobe.exe, and DLLs)
@@ -48,8 +48,10 @@ pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
 exe = EXE(
     pyz,
     a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
     [],
-    exclude_binaries=True,
     name="MXToAAF",
     debug=False,
     bootloader_ignore_signals=False,
@@ -61,14 +63,4 @@ exe = EXE(
     codesign_identity=None,
     entitlements_file=None,
     icon="icons/win/MXToAAF.ico",
-)
-
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name="MXToAAF",
 )
