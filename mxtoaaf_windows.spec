@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from PyInstaller.utils.hooks import collect_submodules
+from PyInstaller.utils.hooks import collect_submodules, collect_all
 
 block_cipher = None
 
@@ -28,13 +28,25 @@ common_datas = [
     ("icons/win/MXToAAF.ico", "icons/win"),
 ]
 
-hiddenimports = ["tkinter"] + collect_submodules("aaf2")
+hiddenimports = [
+    "tkinter",
+    "mxto_aaf.aaf",
+    "aaf2",
+    "aaf2.auid",
+    "aaf2.rational",
+    "aaf2.misc",
+]
+hiddenimports += collect_submodules("aaf2")
+
+# Also collect all aaf2 package data/binaries via hook utility
+_aaf2_datas, _aaf2_binaries, _aaf2_hidden = collect_all("aaf2")
+hiddenimports += _aaf2_hidden
 
 a = Analysis(
     ["mxto_aaf_gui.py"],
     pathex=[str(project_root)],
-    binaries=extra_binaries + dll_binaries,
-    datas=common_datas,
+    binaries=extra_binaries + dll_binaries + _aaf2_binaries,
+    datas=common_datas + _aaf2_datas,
     hiddenimports=hiddenimports,
     hookspath=["hooks"],
     hooksconfig={},
