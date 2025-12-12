@@ -65,8 +65,8 @@ if exist dist (
 
 REM Build with PyInstaller, bundling FFmpeg
 echo.
-echo Building application with bundled FFmpeg via spec...
-python -m PyInstaller --clean mxtoaaf_windows.spec
+echo Building application with bundled FFmpeg via spec (onefile)...
+python -m PyInstaller --clean --onefile mxtoaaf_windows.spec
 
 if errorlevel 1 (
     echo.

@@ -44,7 +44,7 @@ jobs:
       
       - name: Build executable
         run: |
-          python -m PyInstaller --clean mxtoaaf_windows.spec
+          python -m PyInstaller --clean --onefile mxtoaaf_windows.spec
       
       - name: Create distribution folder
         run: |
