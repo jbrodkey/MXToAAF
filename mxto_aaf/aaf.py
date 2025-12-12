@@ -13,7 +13,9 @@ try:
     import aaf2
     import aaf2.auid
     import aaf2.rational
-except Exception:  # pragma: no cover - optional runtime dep
+except Exception as exc:  # pragma: no cover - optional runtime dep
+    # Log why aaf2 import failed in frozen builds
+    print(f"[DEBUG] aaf2 import failed: {exc}")
     aaf2 = None
 
 # Standard AAF parameter and operation definitions for pan control
