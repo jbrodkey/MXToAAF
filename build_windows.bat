@@ -78,7 +78,10 @@ python -m PyInstaller ^
     --onefile ^
     --windowed ^
     --hidden-import=tkinter ^
-    --additional-hooks-dir=hooks ^
+    --hidden-import=aaf2 ^
+    --hidden-import=aaf2.auid ^
+    --hidden-import=aaf2.rational ^
+    --hidden-import=aaf2.misc ^
     --name "MXToAAF" ^
     mxto_aaf_gui.py
 
