@@ -43,14 +43,14 @@ jobs:
           Get-ChildItem 'binaries\windows'
       
       - name: Build executable
-         shell: pwsh
+        shell: pwsh
         run: |
           python -m PyInstaller --clean mxtoaaf_windows.spec
       
       - name: Create distribution folder
-         shell: pwsh
+        shell: pwsh
         run: |
-           New-Item -ItemType Directory -Force -Path "dist_package\MXToAAF" | Out-Null
+          New-Item -ItemType Directory -Force -Path "dist_package\MXToAAF" | Out-Null
           Copy-Item "dist\MXToAAF.exe" -Destination "dist_package\MXToAAF\"
           Copy-Item "LICENSES.txt" -Destination "dist_package\MXToAAF\"
           Copy-Item "docs\README_windows.md" -Destination "dist_package\MXToAAF\README.md"
