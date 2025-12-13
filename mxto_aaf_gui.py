@@ -166,19 +166,12 @@ def launch_gui():
                 # For files: AAFs next to the file
                 outp = os.path.join(os.path.dirname(inp), "AAFs")
             else:
-                # For directories: AAFs as sibling, with selected dir name included in output path
-                # This preserves the directory structure under AAFs
-                # e.g., select "AC_DC/Back In Black" → output to "AAFs/AC_DC/Back In Black"
+                # For directories: create AAFs folder at the parent level
+                # e.g., select C:\Desktop\wavTest_MX → output to C:\Desktop\AAFs\wavTest_MX
                 dir_path = inp.rstrip('/\\')
+                parent_dir = os.path.dirname(dir_path)
                 dir_name = os.path.basename(dir_path)
-                parent = os.path.dirname(dir_path)
-                parent_name = os.path.basename(parent) if parent else ""
-                
-                # Include parent directory name if it exists (preserve one level of structure)
-                if parent_name:
-                    outp = os.path.join(os.path.dirname(parent), "AAFs", parent_name, dir_name)
-                else:
-                    outp = os.path.join(parent, "AAFs", dir_name)
+                outp = os.path.join(parent_dir, "AAFs", dir_name)
         else:
             # If manually set, force it to end with AAFs folder
             if not outp.rstrip('/\\').endswith("AAFs"):
