@@ -85,11 +85,12 @@ def _process_single_file(
             "duration": md.duration,
         }
 
-        # If we are embedding but the file is not a WAV, convert first.
-        if embed and p.suffix.lower() != ".wav":
+        # If the file is not a WAV, convert it first (for reading metadata + audio).
+        # This ensures the wave module can parse it without extensible format errors.
+        if p.suffix.lower() != ".wav":
             tmp = str(dest_dir / (p.stem + ".tmp.wav"))
             convert_to_wav(str(p), tmp)
-            created = create_music_aaf(tmp, md, str(dest), embed=True, tag_map=tag_map, fps=fps)
+            created = create_music_aaf(tmp, md, str(dest), embed=embed, tag_map=tag_map, fps=fps)
             try:
                 os.remove(tmp)
             except Exception:

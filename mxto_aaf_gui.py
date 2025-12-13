@@ -241,10 +241,10 @@ def launch_gui():
                     md = extract_music_metadata(str(inp))
                     created = None
                     try:
-                        if embed and not inp.lower().endswith('.wav'):
+                        if not inp.lower().endswith('.wav'):
                             tmp = os.path.join(outp, base + ".tmp.wav")
                             convert_to_wav(str(inp), tmp)
-                            created = create_music_aaf(tmp, md, dest, embed=True, tag_map=None, fps=fps)
+                            created = create_music_aaf(tmp, md, dest, embed=embed, tag_map=None, fps=fps)
                             try:
                                 os.remove(tmp)
                             except Exception:
