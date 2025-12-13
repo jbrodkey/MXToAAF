@@ -29,16 +29,15 @@ jobs:
       
       - name: Download FFmpeg for Windows
         run: |
-          echo "Downloading FFmpeg..."
-          Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl-shared.zip" -OutFile "ffmpeg.zip"
+           echo "Downloading minimal FFmpeg (essentials build)..."
+           Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile "ffmpeg.zip"
           echo "Extracting FFmpeg..."
           Expand-Archive "ffmpeg.zip" -DestinationPath "."
-          echo "Copying all FFmpeg binaries and DLLs..."
+           echo "Copying FFmpeg binaries (no DLLs needed - essentials are self-contained)..."
           $ffmpegDir = Get-ChildItem -Directory -Filter "ffmpeg-*" | Select-Object -First 1
           New-Item -ItemType Directory -Force -Path "binaries\windows"
           Copy-Item "$($ffmpegDir.FullName)\bin\ffmpeg.exe" -Destination "binaries\windows\"
           Copy-Item "$($ffmpegDir.FullName)\bin\ffprobe.exe" -Destination "binaries\windows\"
-          Copy-Item "$($ffmpegDir.FullName)\bin\*.dll" -Destination "binaries\windows\"
           echo "FFmpeg binaries ready:"
           Get-ChildItem "binaries\windows"
       

@@ -14,12 +14,11 @@ except NameError:
 
 binaries_dir = project_root / "binaries" / "windows"
 
-# Bundle all Windows binaries (ffmpeg.exe, ffprobe.exe, and DLLs)
+# Bundle Windows binaries (ffmpeg.exe and ffprobe.exe - essentials build is self-contained)
 extra_binaries = [
     (str(binaries_dir / "ffmpeg.exe"), "binaries"),
     (str(binaries_dir / "ffprobe.exe"), "binaries"),
 ]
-dll_binaries = [(str(path), "binaries") for path in binaries_dir.glob("*.dll")]
 
 # Shared data files
 common_datas = [
@@ -45,7 +44,7 @@ hiddenimports += _aaf2_hidden
 a = Analysis(
     ["mxto_aaf_gui.py"],
     pathex=[str(project_root)],
-    binaries=extra_binaries + dll_binaries + _aaf2_binaries,
+        binaries=extra_binaries + _aaf2_binaries,
     datas=common_datas + _aaf2_datas,
     hiddenimports=hiddenimports,
     hookspath=["hooks"],
