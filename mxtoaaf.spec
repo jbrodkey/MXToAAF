@@ -48,4 +48,9 @@ app = BUNDLE(
     name='MXToAAF.app',
     icon='icons/mac/MXToAAF.icns',
     bundle_identifier=None,
+    version='1.0.0',
+    info_plist={
+        'CFBundleShortVersionString': '1.0.0',
+        'CFBundleVersion': '1.0.0',
+    },
 )
