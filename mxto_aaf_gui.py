@@ -166,16 +166,23 @@ def launch_gui():
                 # For files: AAFs next to the file
                 outp = os.path.join(os.path.dirname(inp), "AAFs")
             else:
-                # For directories: create AAFs folder at the parent level
+                # For directories: create AAFs folder at the parent level with dir name
                 # e.g., select C:\Desktop\wavTest_MX → output to C:\Desktop\AAFs\wavTest_MX
                 dir_path = inp.rstrip('/\\')
                 parent_dir = os.path.dirname(dir_path)
                 dir_name = os.path.basename(dir_path)
                 outp = os.path.join(parent_dir, "AAFs", dir_name)
         else:
-            # If manually set, force it to end with AAFs folder
+            # If manually set, add AAFs folder and preserve input directory structure
+            # e.g., select C:\Desktop\wavTest_MX, output C:\MyOutput → C:\MyOutput\AAFs\wavTest_MX
             if not outp.rstrip('/\\').endswith("AAFs"):
-                outp = os.path.join(outp, "AAFs")
+                if os.path.isdir(inp):
+                    # For directories: include the source directory name
+                    dir_name = os.path.basename(inp.rstrip('/\\'))
+                    outp = os.path.join(outp, "AAFs", dir_name)
+                else:
+                    # For files: just add AAFs
+                    outp = os.path.join(outp, "AAFs")
             else:
                 # If user already specified AAFs, use as-is
                 outp = outp.rstrip('/\\')
