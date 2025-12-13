@@ -13,19 +13,8 @@ from .metadata import MusicMetadata
 
 try:
     import aaf2
-    print(f"[DEBUG] aaf2 spec: {importlib.util.find_spec('aaf2')}")
-    print(f"[DEBUG] sys.path: {sys.path}")
 except Exception as exc:  # pragma: no cover - optional runtime dep
-    # Log why aaf2 import failed in frozen builds
-    print(f"[DEBUG] aaf2 import failed: {exc}")
     aaf2 = None
-
-if aaf2 is None:
-    # Additional diagnostics to help bundled builds surface why aaf2 is missing
-    import importlib.util
-    import sys
-    print(f"[DEBUG] aaf2 spec: {importlib.util.find_spec('aaf2')}")
-    print(f"[DEBUG] sys.path: {sys.path}")
 
 # Standard AAF parameter and operation definitions for pan control
 AAF_PARAMETERDEF_PAN = None
