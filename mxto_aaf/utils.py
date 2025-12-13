@@ -61,24 +61,21 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
     if not ffmpeg_available():
         raise FileNotFoundError("ffmpeg not available in PATH")
 
-    # prefer explicit codec for 24-bit
-    codec = "pcm_s24le" if bits == 24 else "pcm_s16le"
-    
     ffmpeg_path = _get_ffmpeg_path()
+    
+    # Force standard PCM WAV format (not EXTENSIBLE)
+    # -write_cue 0: Don't add cue points
+    # The key is to use -acodec pcm_s16le for 16-bit or pcm_s24le for 24-bit
+    # and avoid extensible format by using 16-bit as fallback if needed
     cmd = [
         ffmpeg_path,
-        "-y",
-        "-v",
-        "error",
-        "-i",
-        src_path,
-        "-ar",
-        str(samplerate),
-        "-ac",
-        str(channels),
-        "-acodec",
-        codec,
-        dst_path,
+        "-y",                    # Overwrite output file
+        "-i", src_path,         # Input file (auto-detect format)
+        "-f", "wav",            # Force output format to WAV
+        "-acodec", "pcm_s16le",  # Use 16-bit PCM (more compatible, standard format)
+        "-ar", "48000",          # 48kHz sample rate
+        "-ac", "2",              # Stereo
+        dst_path,               # Output file
     ]
 
     # On Windows, add the binaries directory to PATH so FFmpeg can find DLLs
@@ -88,10 +85,38 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
         env['PATH'] = binaries_dir + os.pathsep + env.get('PATH', '')
         print(f"[DEBUG] Added to PATH for DLL loading: {binaries_dir}")
 
+    print(f"[DEBUG] Running FFmpeg conversion: {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, check=True, capture_output=True, text=True, env=env)
+        # Don't suppress output initially - capture both stderr and stdout for debugging
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True, env=env)
+        
+        if result.returncode != 0:
+            # FFmpeg failed
+            error_msg = result.stderr + result.stdout if (result.stderr or result.stdout) else f"FFmpeg exited with code {result.returncode}"
+            print(f"[DEBUG] FFmpeg error output: {error_msg}")
+            raise RuntimeError(f"FFmpeg failed to convert {src_path}: {error_msg}")
+        
+        print(f"[DEBUG] FFmpeg conversion completed successfully")
+        
+        # Verify output file was created
+        if not os.path.exists(dst_path):
+            raise RuntimeError(f"FFmpeg produced no output file at {dst_path}")
+        
+        file_size = os.path.getsize(dst_path)
+        print(f"[DEBUG] Output file verified: {dst_path} ({file_size} bytes)")
+        
+        if file_size < 100:  # Sanity check - WAV file should be much larger
+            raise RuntimeError(f"FFmpeg output file is suspiciously small ({file_size} bytes) - conversion likely failed")
+        
+        # Wait a moment for file system to flush the data (especially important on Windows)
+        import time
+        time.sleep(0.5)
+        
+        print(f"[DEBUG] WAV file ready for processing")
+            
     except subprocess.CalledProcessError as e:
         error_msg = e.stderr or e.stdout or str(e)
+        print(f"[DEBUG] FFmpeg error output: {error_msg}")
         raise RuntimeError(f"FFmpeg failed to convert {src_path}: {error_msg}") from e
 
 
