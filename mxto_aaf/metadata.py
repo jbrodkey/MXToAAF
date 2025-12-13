@@ -4,6 +4,7 @@ Uses mutagen where available and falls back to simple defaults.
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 from typing import Optional, Dict, Any
 
@@ -144,7 +145,15 @@ def extract_music_metadata(path: str) -> MusicMetadata:
     if not raw and json is not None and subprocess is not None:
         try:
             cmd = ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", "-show_entries", "format_tags", path]
-            proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
+            
+            # On Windows, hide the console window to prevent flashing cmd.exe windows
+            startupinfo = None
+            if os.name == 'nt':
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+            
+            proc = subprocess.run(cmd, capture_output=True, text=True, check=True, startupinfo=startupinfo)
             j = json.loads(proc.stdout)
             tags = j.get("format", {}).get("tags", {}) if isinstance(j, dict) else {}
             # normalize typical tag names (mp4 atoms etc.)

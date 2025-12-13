@@ -87,8 +87,15 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
 
     print(f"[DEBUG] Running FFmpeg conversion: {' '.join(cmd)}")
     try:
+        # On Windows, hide the console window to prevent flashing cmd.exe windows
+        startupinfo = None
+        if os.name == 'nt':
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+            startupinfo.wShowWindow = subprocess.SW_HIDE
+        
         # Don't suppress output initially - capture both stderr and stdout for debugging
-        result = subprocess.run(cmd, check=False, capture_output=True, text=True, env=env)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True, env=env, startupinfo=startupinfo)
         
         if result.returncode != 0:
             # FFmpeg failed
