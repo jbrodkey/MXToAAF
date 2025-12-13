@@ -172,10 +172,13 @@ def create_music_aaf(
     # Create an AAF file that mirrors WAVsToAAF structure: MasterMob + SourceMob(s)
     with aaf2.open(out_aaf_path, "w") as f:
         # read raw wav header details
-        with wave.open(wav_path, "rb") as wf:
-            channels = wf.getnchannels()
-            sample_rate = wf.getframerate()
-            frames = wf.getnframes()
+        try:
+            with wave.open(wav_path, "rb") as wf:
+                channels = wf.getnchannels()
+                sample_rate = wf.getframerate()
+                frames = wf.getnframes()
+        except Exception as e:
+            raise RuntimeError(f"Failed to read WAV file {wav_path}: {e}. This file may not be a valid PCM WAV format.") from e
 
         def _deterministic_mobid(path: str, suffix: str = "master"):
             try:

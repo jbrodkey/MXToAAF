@@ -89,7 +89,11 @@ def _process_single_file(
         # This ensures the wave module can parse it without extensible format errors.
         if p.suffix.lower() != ".wav":
             tmp = str(dest_dir / (p.stem + ".tmp.wav"))
+            print(f"[DEBUG] Converting non-WAV file: {p}")
             convert_to_wav(str(p), tmp)
+            print(f"[DEBUG] Conversion completed, calling create_music_aaf with: {tmp}")
+            if not os.path.exists(tmp):
+                raise RuntimeError(f"Conversion failed: {tmp} was not created")
             created = create_music_aaf(tmp, md, str(dest), embed=embed, tag_map=tag_map, fps=fps)
             try:
                 os.remove(tmp)
