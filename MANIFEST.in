@@ -1,7 +1,7 @@
 # Include key project documentation and config files
 include README.md
 include PACKAGING.md
-include AAF_PAN_IMPLEMENTATION.md
+include docs/AAF_PAN_IMPLEMENTATION.md
 include requirements.txt
 
 # Include package source code
