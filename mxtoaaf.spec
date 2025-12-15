@@ -5,7 +5,7 @@ a = Analysis(
     ['mxto_aaf_gui.py'],
     pathex=[],
     binaries=[],
-    datas=[('LICENSES.txt', '.'), ('docs/README_mac.md', 'docs'), ('binaries/macos/ffmpeg', 'binaries'), ('binaries/macos/ffprobe', 'binaries')],
+    datas=[('LICENSES.txt', '.'), ('docs/README_mac.md', 'docs'), ('binaries/macos/ffmpeg', 'binaries')],
     hiddenimports=['tkinter'],
     hookspath=[],
     hooksconfig={},
@@ -48,9 +48,4 @@ app = BUNDLE(
     name='MXToAAF.app',
     icon='icons/mac/MXToAAF.icns',
     bundle_identifier=None,
-    version='1.0.0',
-    info_plist={
-        'CFBundleShortVersionString': '1.0.0',
-        'CFBundleVersion': '1.0.0',
-    },
 )

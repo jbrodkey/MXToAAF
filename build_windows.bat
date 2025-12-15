@@ -80,7 +80,6 @@ echo.
 echo Creating distribution package...
 mkdir dist_package\MXToAAF 2>nul
 copy dist\MXToAAF.exe dist_package\MXToAAF\
-copy LICENSES.txt dist_package\MXToAAF\
 copy docs\README_windows.md dist_package\MXToAAF\README.md
 
 echo.
@@ -89,7 +88,6 @@ echo.
 echo Distribution package: dist_package\MXToAAF\
 echo   - MXToAAF.exe (includes bundled FFmpeg)
 echo   - README.md
-echo   - LICENSES.txt
 echo.
 echo To run the app:
 echo   dist_package\MXToAAF\MXToAAF.exe

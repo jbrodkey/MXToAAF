@@ -22,7 +22,6 @@ extra_binaries = [
 
 # Shared data files
 common_datas = [
-    ("LICENSES.txt", "."),
     ("docs/README_windows.md", "docs"),
     ("icons/win/MXToAAF.ico", "icons/win"),
 ]
