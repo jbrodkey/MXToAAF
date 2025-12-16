@@ -6,9 +6,14 @@ set -euo pipefail
 
 echo "Building MXToAAF for macOS..."
 
-# Check for FFmpeg binary
+# Check for FFmpeg/FFprobe binaries
 if [ ! -f "binaries/macos/ffmpeg" ]; then
     echo "FFmpeg binary not found at binaries/macos/ffmpeg"
+    echo "Please run: ./build_minimal_ffmpeg_mac.sh"
+    exit 1
+fi
+if [ ! -f "binaries/macos/ffprobe" ]; then
+    echo "FFprobe binary not found at binaries/macos/ffprobe"
     echo "Please run: ./build_minimal_ffmpeg_mac.sh"
     exit 1
 fi
@@ -32,19 +37,12 @@ fi
 echo "Cleaning previous builds..."
 rm -rf build/ dist/
 
-# Build with PyInstaller, bundling FFmpeg
-echo "Building application with bundled FFmpeg..."
+# Build with PyInstaller spec to keep options in one place
+echo "Building application with bundled FFmpeg/FFprobe via mxtoaaf.spec..."
 python3 -m PyInstaller \
     --noconfirm \
     --clean \
-    --add-data "LICENSES.txt:." \
-    --add-data "docs/README_mac.md:docs" \
-    --add-data "binaries/macos/ffmpeg:binaries" \
-    --windowed \
-    --hidden-import=tkinter \
-    --name "MXToAAF" \
-    $ICON_FLAG \
-    mxto_aaf_gui.py
+    mxtoaaf.spec
 
 if [ $? -ne 0 ]; then
     echo "Build failed!"
@@ -72,7 +70,7 @@ echo ""
 echo "✓ Build complete!"
 echo ""
 echo "App bundle location: dist/MXToAAF.app"
-echo "Includes bundled FFmpeg for self-contained operation"
+echo "Includes bundled FFmpeg/FFprobe for self-contained operation"
 echo ""
 echo "To run the app:"
 echo "  open dist/MXToAAF.app"
