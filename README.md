@@ -83,3 +83,23 @@ Batch processing options:
 - `--log-file`: Write detailed JSON log
 - `--max-files`: Limit processing to N files for testing
 - `--no-recursive`: Don't recurse into subdirectories
+
+## Releases
+
+MXToAAF provides pre-built applications for macOS and Windows via automated GitHub Actions builds.
+
+### Download Latest Release
+
+Visit the [GitHub Releases](https://github.com/yourusername/MXToAAF/releases) page to download:
+- **macOS**: `MXToAAF.dmg` (drag to Applications) or `MXToAAF.app`
+- **Windows**: `MXToAAF.exe` folder (run `MXToAAF.exe`)
+
+### Creating Releases
+
+To create a new release with automated builds:
+
+1. Update version in `mxto_aaf/__version__.py`
+2. Commit and push a version tag: `git tag v1.1.0 && git push origin v1.1.0`
+3. GitHub Actions will build and publish the release automatically
+
+See [BUILD.md](BUILD.md) for detailed build and release instructions.

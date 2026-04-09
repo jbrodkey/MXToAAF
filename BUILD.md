@@ -64,29 +64,55 @@ Windows builds are handled automatically by GitHub Actions on tag pushes. See [A
 
 ## Automated Builds (GitHub Actions)
 
-Builds are automatically triggered when you push a git tag:
+MXToAAF uses GitHub Actions to automatically build and package releases for both macOS and Windows when you push a version tag.
 
-### Create a Release Build
+### Creating a Release
 
-```bash
-git tag v1.0.0
-git push origin v1.0.0
-```
+1. **Update version** in `mxto_aaf/__version__.py`:
+   ```python
+   __version__ = "1.1.0"
+   ```
 
-This triggers:
-- **macOS workflow** (`build-macos.yml`): Creates `MXToAAF.app` and `MXToAAF.dmg`
-- **Windows workflow** (`build-windows.yml`): Creates `MXToAAF.exe` and dependencies
+2. **Commit and tag** the release:
+   ```bash
+   git add mxto_aaf/__version__.py
+   git commit -m "Release v1.1.0"
+   git tag v1.1.0
+   git push origin main v1.1.0
+   ```
 
-### Download Built Artifacts
+3. **GitHub Actions will automatically**:
+   - Build macOS `.app` bundle and `.dmg` installer
+   - Build Windows `.exe` executable with bundled FFmpeg
+   - Create a GitHub Release with download links
 
-1. Go to your GitHub repository
-2. Click **Actions** tab
-3. Select the completed workflow run
-4. Download the artifacts:
-   - `MXToAAF-macOS` (`.app` and `.dmg`)
-   - `MXToAAF-Windows` (`.exe` folder)
+### Download Release Artifacts
 
----
+After the workflows complete (usually 10-15 minutes):
+
+1. Go to your GitHub repository → **Actions** tab
+2. Click the latest workflow run
+3. Download from **Artifacts**:
+   - `MXToAAF-macOS`: Contains `MXToAAF.app` and `MXToAAF.dmg`
+   - `MXToAAF`: Contains Windows `MXToAAF.exe` folder
+
+### Workflow Details
+
+- **macOS workflow** (`build-macos.yml`):
+  - Triggers on version tags (`v*`)
+  - Builds using PyInstaller with bundled FFmpeg
+  - Creates DMG for easy distribution
+  - Also creates a GitHub Release
+
+- **Windows workflow** (`build-windows.yml`):
+  - Triggers on version tags and `main` branch pushes
+  - Downloads latest FFmpeg essentials build
+  - Builds using `mxtoaaf_windows.spec`
+  - Packages executable with README
+
+### Manual Builds
+
+If you prefer local builds instead of GitHub Actions:
 
 ## Build Output
 

@@ -24,7 +24,45 @@ After building, verify the version appears in:
 - **About Dialog**: Help → About MXToAAF (both platforms)
 - **App Footer**: Bottom-right of the app window (both platforms)
 
-## Building Releases
+## Automated Releases (Recommended)
+
+MXToAAF uses GitHub Actions to automatically build and release applications for both macOS and Windows.
+
+### Creating an Automated Release
+
+1. **Update version** in `mxto_aaf/__version__.py` as described above
+2. **Commit changes** and push to main branch
+3. **Create and push a version tag**:
+   ```bash
+   git tag v1.1.0
+   git push origin main v1.1.0
+   ```
+4. **GitHub Actions will automatically**:
+   - Build macOS app bundle and DMG installer
+   - Build Windows executable with bundled FFmpeg
+   - Create a GitHub Release with download links
+   - Upload build artifacts for manual download
+
+### Download Release Artifacts
+
+After workflows complete (10-15 minutes):
+1. Go to GitHub repository → **Actions** tab
+2. Click the workflow run for your tag
+3. Download from **Artifacts**:
+   - `MXToAAF-macOS`: Contains `MXToAAF.app` and `MXToAAF.dmg`
+   - `MXToAAF`: Contains Windows executable folder
+
+### Benefits of Automated Releases
+
+- **Consistent builds**: Same environment every time
+- **Cross-platform**: macOS and Windows builds from single tag
+- **FFmpeg handling**: Automatic download and bundling
+- **Version consistency**: Single source of truth for version numbers
+- **Distribution ready**: DMG for macOS, folder for Windows
+
+See [BUILD.md](BUILD.md) for detailed workflow information.
+
+## Building Releases (Manual/Local)
 
 ### macOS Build (Local)
 
