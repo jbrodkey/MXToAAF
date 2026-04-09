@@ -24,22 +24,14 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
       
-      - name: Build app bundle
+      - name: Install FFmpeg
         run: |
-          python -m PyInstaller \
-            --noconfirm \
-            --clean \
-            --windowed \
-            --hidden-import=tkinter \
-            --name "MXToAAF" \
-            mxto_aaf_gui.py
+          brew install ffmpeg
       
-      - name: Create DMG
+      - name: Build and package with build_mac.sh
         run: |
-          hdiutil create -volname 'MXToAAF' \
-            -srcfolder dist/MXToAAF.app \
-            -ov -format UDZO \
-            dist/MXToAAF.dmg
+          chmod +x build_mac.sh
+          ./build_mac.sh
       
       - name: Upload artifact
         uses: actions/upload-artifact@v4
