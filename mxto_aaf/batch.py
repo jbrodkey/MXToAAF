@@ -42,6 +42,8 @@ def _process_single_file(
     tag_map: dict | None,
     skip_existing: bool,
     fps: float = 24.0,
+    bit_depth: int = 24,
+    sample_rate: int = 48000,
 ) -> Dict[str, Any]:
     """Process a single audio file and return result dict"""
     result = {
@@ -89,7 +91,7 @@ def _process_single_file(
         # This ensures the wave module can parse it without extensible format errors.
         if p.suffix.lower() != ".wav":
             tmp = str(dest_dir / (p.stem + ".tmp.wav"))
-            convert_to_wav(str(p), tmp)
+            convert_to_wav(str(p), tmp, samplerate=sample_rate, bits=bit_depth)
             if not os.path.exists(tmp):
                 raise RuntimeError(f"Conversion failed: {tmp} was not created")
             created = create_music_aaf(tmp, md, str(dest), embed=embed, tag_map=tag_map, fps=fps)
@@ -123,6 +125,8 @@ def process_directory(
     export_csv: str | None = None,
     export_metadata_csv: str | None = None,
     fps: float = 24.0,
+    bit_depth: int = 24,
+    sample_rate: int = 48000,
 ) -> Dict[str, Any]:
     """Process directory with parallel support and detailed reporting
     
@@ -174,7 +178,7 @@ def process_directory(
     
     # Sequential processing only (parallel removed due to I/O-bound workload)
     for idx, p in enumerate(all_files, 1):
-        result = _process_single_file(p, src, out_dir, embed, tag_map, skip_existing, fps)
+        result = _process_single_file(p, src, out_dir, embed, tag_map, skip_existing, fps, bit_depth, sample_rate)
         results.append(result)
         
         if result["status"] == "success":

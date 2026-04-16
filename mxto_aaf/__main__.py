@@ -27,6 +27,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--embed", action="store_true", help="embed audio essence into AAF (requires ffmpeg + aaf2)")
     parser.add_argument("--tag-map", help="JSON file mapping metadata fields to AAF tag names (optional)")
     parser.add_argument("--fps", type=float, default=24.0, help="frame rate for AAF timeline (default: 24.0)")
+    parser.add_argument("--bit-depth", type=int, choices=[16, 24], default=24, help="audio bit depth: 16 or 24 (default: 24)")
+    parser.add_argument("--sample-rate", type=int, choices=[44100, 48000, 96000], default=48000, help="sample rate in Hz: 44100, 48000, or 96000 (default: 48000)")
     parser.add_argument("--version", action="version", version=f"MXToAAF {__version__}")
     
     # Batch-specific options
@@ -135,6 +137,8 @@ def main(argv: list[str] | None = None) -> int:
             export_csv=args.export_csv,
             export_metadata_csv=args.export_metadata_csv,
             fps=args.fps,
+            bit_depth=args.bit_depth,
+            sample_rate=args.sample_rate,
         )
         
         print(f"\n{'='*60}")
@@ -192,7 +196,7 @@ def main(argv: list[str] | None = None) -> int:
             
             from .utils import convert_to_wav
             tmp = str(Path(out).with_suffix('.tmp.wav'))
-            convert_to_wav(str(input_path), tmp)
+            convert_to_wav(str(input_path), tmp, samplerate=args.sample_rate, bits=args.bit_depth)
             try:
                 created = create_music_aaf(tmp, metadata, out, embed=True, tag_map=tag_map, fps=args.fps)
                 print("Single-file mode: AAF created:", created)

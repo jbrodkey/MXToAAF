@@ -10,6 +10,12 @@ Version: 0.9.0
 Date: 2025-11-30
 """
 
+# Force PyInstaller to bundle mutagen and its submodules
+import mutagen  # noqa: F401
+import mutagen.mp4  # noqa: F401
+import mutagen.m4a  # noqa: F401
+import mutagen.easymp4  # noqa: F401
+
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
 from tkinter.scrolledtext import ScrolledText
@@ -71,6 +77,8 @@ def launch_gui():
     input_var = tk.StringVar()
     out_var = tk.StringVar()
     fps_var = tk.StringVar(value="24")
+    bit_depth_var = tk.StringVar(value="24")
+    sample_rate_var = tk.StringVar(value="48000")
     embed_var = tk.BooleanVar(value=True)
     csv_var = tk.BooleanVar(value=False)
     meta_csv_var = tk.BooleanVar(value=False)
@@ -146,6 +154,24 @@ def launch_gui():
         except Exception:
             messagebox.showwarning("Invalid FPS", "FPS must be a positive number (e.g. 24 or 23.976). Using 24.")
             fps = 24.0
+        
+        # Parse bit depth
+        try:
+            bit_depth = int(bit_depth_var.get().strip() or "24")
+            if bit_depth not in [16, 24]:
+                raise ValueError
+        except Exception:
+            messagebox.showwarning("Invalid Bit Depth", "Bit depth must be 16 or 24. Using 24.")
+            bit_depth = 24
+        
+        # Parse sample rate
+        try:
+            sample_rate = int(sample_rate_var.get().strip() or "48000")
+            if sample_rate not in [44100, 48000, 96000]:
+                raise ValueError
+        except Exception:
+            messagebox.showwarning("Invalid Sample Rate", "Sample rate must be 44100, 48000, or 96000 Hz. Using 48000.")
+            sample_rate = 48000
 
         if not inp:
             messagebox.showerror("Missing input", "Please select a music file or directory.")
@@ -194,6 +220,8 @@ def launch_gui():
         def worker():
             log("Starting conversion…")
             log(f"Frame rate: {fps} fps")
+            log(f"Bit depth: {bit_depth}-bit")
+            log(f"Sample rate: {sample_rate} Hz")
             log(f"Embed audio: {'Yes' if embed else 'No'}")
             log(f"Input: {inp}")
             # Only show output in log, don't populate the field if it was left blank
@@ -225,6 +253,8 @@ def launch_gui():
                         export_csv=os.path.join(outp, "results.csv") if export_csv else None,
                         export_metadata_csv=os.path.join(outp, "metadata.csv") if export_meta_csv else None,
                         fps=fps,
+                        bit_depth=bit_depth,
+                        sample_rate=sample_rate,
                     )
                     log(f"✓ Success: {summary['success_count']}")
                     log(f"✗ Failed: {summary['failed_count']}")
@@ -243,7 +273,7 @@ def launch_gui():
                     try:
                         if not inp.lower().endswith('.wav'):
                             tmp = os.path.join(outp, base + ".tmp.wav")
-                            convert_to_wav(str(inp), tmp)
+                            convert_to_wav(str(inp), tmp, samplerate=sample_rate, bits=bit_depth)
                             created = create_music_aaf(tmp, md, dest, embed=embed, tag_map=None, fps=fps)
                             try:
                                 os.remove(tmp)
@@ -471,12 +501,29 @@ def launch_gui():
     adv_btn = ttk.Button(adv_frame, text="Advanced ▼", command=toggle_advanced, width=12)
     adv_btn.pack(side='left')
 
-    # Advanced container with all 3 checkboxes
+    # Advanced container with checkboxes and bit depth/sample rate options
     adv_container = ttk.Frame(frm)
     adv_container.grid(row=7, column=0, columnspan=3, sticky='w', pady=(0, 8))
-    ttk.Checkbutton(adv_container, text="Embed audio in AAF (recommended)", variable=embed_var).pack(side='left')
-    ttk.Checkbutton(adv_container, text="Export results CSV", variable=csv_var).pack(side='left', padx=(12, 0))
-    ttk.Checkbutton(adv_container, text="Export metadata CSV", variable=meta_csv_var).pack(side='left', padx=(12, 0))
+    
+    # First row: checkboxes
+    adv_row1 = ttk.Frame(adv_container)
+    adv_row1.pack(side='top', fill='x')
+    ttk.Checkbutton(adv_row1, text="Embed audio in AAF (recommended)", variable=embed_var).pack(side='left')
+    ttk.Checkbutton(adv_row1, text="Export results CSV", variable=csv_var).pack(side='left', padx=(12, 0))
+    ttk.Checkbutton(adv_row1, text="Export metadata CSV", variable=meta_csv_var).pack(side='left', padx=(12, 0))
+    
+    # Second row: bit depth and sample rate
+    adv_row2 = ttk.Frame(adv_container)
+    adv_row2.pack(side='top', fill='x', pady=(8, 0))
+    
+    ttk.Label(adv_row2, text="Bit Depth:").pack(side='left')
+    bit_depth_combo = ttk.Combobox(adv_row2, textvariable=bit_depth_var, values=["16", "24"], state="readonly", width=4)
+    bit_depth_combo.pack(side='left', padx=(4, 0))
+    
+    ttk.Label(adv_row2, text="Sample Rate (Hz):").pack(side='left', padx=(12, 0))
+    sample_rate_combo = ttk.Combobox(adv_row2, textvariable=sample_rate_var, values=["44100", "48000", "96000"], state="readonly", width=8)
+    sample_rate_combo.pack(side='left', padx=(4, 0))
+    
     adv_container.grid_remove()
 
     # Action buttons

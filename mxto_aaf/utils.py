@@ -42,18 +42,24 @@ def convert_to_wav(src_path: str, dst_path: str, samplerate: int = 48000, bits: 
 
     ffmpeg_path = _get_ffmpeg_path()
     
+    # Select codec based on bit depth
+    # 16-bit: pcm_s16le, 24-bit: pcm_s24le
+    if bits == 16:
+        codec = "pcm_s16le"
+    elif bits == 24:
+        codec = "pcm_s24le"
+    else:
+        raise ValueError(f"Unsupported bit depth: {bits}. Use 16 or 24.")
+    
     # Force standard PCM WAV format (not EXTENSIBLE)
-    # -write_cue 0: Don't add cue points
-    # The key is to use -acodec pcm_s16le for 16-bit or pcm_s24le for 24-bit
-    # and avoid extensible format by using 16-bit as fallback if needed
     cmd = [
         ffmpeg_path,
         "-y",                    # Overwrite output file
         "-i", src_path,         # Input file (auto-detect format)
         "-f", "wav",            # Force output format to WAV
-        "-acodec", "pcm_s16le",  # Use 16-bit PCM (more compatible, standard format)
-        "-ar", "48000",          # 48kHz sample rate
-        "-ac", "2",              # Stereo
+        "-acodec", codec,        # Use selected codec (pcm_s16le or pcm_s24le)
+        "-ar", str(samplerate),  # Sample rate (Hz)
+        "-ac", str(channels),    # Channel count
         dst_path,               # Output file
     ]
 

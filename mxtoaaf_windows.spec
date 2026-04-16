@@ -28,6 +28,7 @@ common_datas = [
 
 hiddenimports = [
     "tkinter",
+    "mutagen",
     "mxto_aaf.aaf",
     "aaf2",
     "aaf2.auid",
@@ -35,6 +36,7 @@ hiddenimports = [
     "aaf2.misc",
 ]
 hiddenimports += collect_submodules("aaf2")
+hiddenimports += collect_submodules("mutagen")
 
 # Also collect all aaf2 package data/binaries via hook utility
 _aaf2_datas, _aaf2_binaries, _aaf2_hidden = collect_all("aaf2")
