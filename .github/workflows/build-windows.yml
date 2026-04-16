@@ -15,10 +15,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
       
@@ -57,7 +57,7 @@ jobs:
           Copy-Item "docs\README_windows.md" -Destination "dist_package\MXToAAF\README.md"
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: MXToAAF
           path: dist_package/MXToAAF
