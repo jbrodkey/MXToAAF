@@ -127,6 +127,7 @@ def process_directory(
     fps: float = 24.0,
     bit_depth: int = 24,
     sample_rate: int = 48000,
+    cancel_event: Any = None,
 ) -> Dict[str, Any]:
     """Process directory with parallel support and detailed reporting
     
@@ -178,6 +179,11 @@ def process_directory(
     
     # Sequential processing only (parallel removed due to I/O-bound workload)
     for idx, p in enumerate(all_files, 1):
+        # Check for cancellation
+        if cancel_event and cancel_event.is_set():
+            print("\nBatch processing cancelled by user.")
+            break
+            
         result = _process_single_file(p, src, out_dir, embed, tag_map, skip_existing, fps, bit_depth, sample_rate)
         results.append(result)
         

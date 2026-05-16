@@ -51,19 +51,28 @@ If you set a custom output folder, AAF files go to `{your_folder}/AAFs/`
 
 If you see a security warning:
 
-> "App can't be opened because it is from an unidentified developer."
+> "App is damaged and can't be opened. You should move it to the Trash."
 
 OR
 
-> "Apple could not verify..."
+> "App can't be opened because it is from an unidentified developer."
 
-You'll need to:
+**Fix (one-time):**
 
-1. Open **System Settings** > **Privacy & Security**
-2. Scroll down to **Security**
-3. At the line for **MXToAAF** choose: **Open Anyway**
+1. Open **Terminal** (Applications > Utilities > Terminal)
+2. Type this command (drag MXToAAF.app into Terminal after typing):
+   ```bash
+   xattr -cr 
+   ```
+3. Press **Enter** and close Terminal
+4. Double-click **MXToAAF.app** to launch
 
-The warning appears on first run because the app isn't code-signed. It's safe to open.
+**Alternatively:**
+1. Right-click (Control+click) on **MXToAAF.app**
+2. Select **Open** from the menu
+3. Click **Open** in the security dialog
+
+The warning appears because the app isn't code-signed with an Apple Developer certificate. It's safe to open.
 
 ## Support
 

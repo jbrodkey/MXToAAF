@@ -34,9 +34,15 @@ hiddenimports = [
     "aaf2.auid",
     "aaf2.rational",
     "aaf2.misc",
+    "tkinterdnd2",
 ]
 hiddenimports += collect_submodules("aaf2")
 hiddenimports += collect_submodules("mutagen")
+hiddenimports += collect_submodules("tkinterdnd2")
+
+# Collect tkinterdnd2 package data
+_tkinterdnd2_datas, _tkinterdnd2_binaries, _tkinterdnd2_hidden = collect_all("tkinterdnd2")
+hiddenimports += _tkinterdnd2_hidden
 
 # Also collect all aaf2 package data/binaries via hook utility
 _aaf2_datas, _aaf2_binaries, _aaf2_hidden = collect_all("aaf2")
@@ -45,8 +51,8 @@ hiddenimports += _aaf2_hidden
 a = Analysis(
     ["mxto_aaf_gui.py"],
     pathex=[str(project_root)],
-        binaries=extra_binaries + _aaf2_binaries,
-    datas=common_datas + _aaf2_datas,
+    binaries=extra_binaries + _aaf2_binaries + _tkinterdnd2_binaries,
+    datas=common_datas + _aaf2_datas + _tkinterdnd2_datas,
     hiddenimports=hiddenimports,
     hookspath=["hooks"],
     hooksconfig={},

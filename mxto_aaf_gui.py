@@ -26,6 +26,13 @@ import subprocess
 import webbrowser
 import importlib.metadata as importlib_metadata
 
+# Try to import tkinterdnd2 for drag-and-drop support
+try:
+    from tkinterdnd2 import DND_FILES, TkinterDnD
+    HAS_DND = True
+except ImportError:
+    HAS_DND = False
+
 
 def resource_path(relative_path: str) -> str:
     """Return absolute path to resource, works for dev and PyInstaller."""
@@ -55,7 +62,11 @@ from mxto_aaf.utils import convert_to_wav
 
 
 def launch_gui():
-    root = tk.Tk()
+    # Create root window with DND support if available
+    if HAS_DND:
+        root = TkinterDnD.Tk()
+    else:
+        root = tk.Tk()
     root.title("MXToAAF - Music to AAF Converter")
     root.geometry("680x520")
     # Set window icon on Windows (PyInstaller extracts data to temp dir)
@@ -128,6 +139,47 @@ def launch_gui():
         path = filedialog.askdirectory(title="Select music directory")
         if path:
             input_var.set(path)
+
+    def handle_input_drop(event):
+        """Handle drag-and-drop for input entry."""
+        # tkinterdnd2 returns file paths as a string with potential braces/quotes
+        data = event.data
+        
+        # Remove surrounding braces if present (tkinterdnd2 format)
+        if data.startswith('{') and data.endswith('}'):
+            data = data[1:-1]
+        
+        # For single file/folder, use the whole path (don't split on spaces)
+        path = data.strip()
+        # Remove quotes if present
+        if (path.startswith('"') and path.endswith('"')) or (path.startswith("'") and path.endswith("'")):
+            path = path[1:-1]
+        
+        if os.path.exists(path):
+            input_var.set(path)
+            # Provide visual feedback
+            status_var.set(f"Input set to: {os.path.basename(path)}")
+            # Clear status after 3 seconds
+            root.after(3000, lambda: status_var.set("") if status_var.get().startswith("Input set to:") else None)
+        return 'copy'
+
+    def handle_output_drop(event):
+        """Handle drag-and-drop for output entry."""
+        data = event.data
+        
+        if data.startswith('{') and data.endswith('}'):
+            data = data[1:-1]
+        path = data.strip()
+        if (path.startswith('"') and path.endswith('"')) or (path.startswith("'") and path.endswith("'")):
+            path = path[1:-1]
+        
+        if os.path.exists(path) and os.path.isdir(path):
+            out_var.set(path)
+            # Provide visual feedback
+            status_var.set(f"Output set to: {os.path.basename(path)}")
+            # Clear status after 3 seconds
+            root.after(3000, lambda: status_var.set("") if status_var.get().startswith("Output set to:") else None)
+        return 'copy'
 
     def browse_out():
         path = filedialog.askdirectory(title="Select output folder")
@@ -255,6 +307,7 @@ def launch_gui():
                         fps=fps,
                         bit_depth=bit_depth,
                         sample_rate=sample_rate,
+                        cancel_event=cancel_event,
                     )
                     log(f"✓ Success: {summary['success_count']}")
                     log(f"✗ Failed: {summary['failed_count']}")
@@ -331,7 +384,12 @@ def launch_gui():
                     open_btn.configure(state='normal')
                 except Exception:
                     pass
-                messagebox.showinfo("Done", "AAF creation completed.")
+                
+                # Check if processing was cancelled
+                if cancel_event.is_set():
+                    messagebox.showinfo("Cancelled", "AAF creation was cancelled.")
+                else:
+                    messagebox.showinfo("Done", "AAF creation completed.")
             except Exception as e:
                 error_str = str(e)
                 # Check for common ffmpeg/source not found errors
@@ -464,6 +522,12 @@ def launch_gui():
 
     input_entry = ttk.Entry(frm, textvariable=input_var, width=60)
     input_entry.grid(row=2, column=0, columnspan=2, sticky='we', pady=(1, 0))
+    
+    # Register drag-and-drop for input entry if available
+    if HAS_DND:
+        input_entry.drop_target_register(DND_FILES)
+        input_entry.dnd_bind('<<Drop>>', handle_input_drop)
+    
     # Place the buttons in a frame in the same row as the entry
     input_btns = ttk.Frame(frm)
     input_btns.grid(row=2, column=2, sticky='w', pady=0)
@@ -474,6 +538,12 @@ def launch_gui():
     ttk.Label(frm, text="Output Folder for AAFs").grid(row=3, column=0, sticky='w', pady=(6, 0))
     out_entry = ttk.Entry(frm, textvariable=out_var, width=60)
     out_entry.grid(row=4, column=0, columnspan=2, sticky='we', pady=(1, 0))
+    
+    # Register drag-and-drop for output entry if available
+    if HAS_DND:
+        out_entry.drop_target_register(DND_FILES)
+        out_entry.dnd_bind('<<Drop>>', handle_output_drop)
+    
     ttk.Button(frm, text="Browse…", command=browse_out).grid(row=4, column=2, sticky='w', pady=0)
 
     # FPS
@@ -536,6 +606,10 @@ def launch_gui():
     open_btn = ttk.Button(buttons_row, text="Open AAF Location", command=open_output_location, state='disabled')
     open_btn.pack(side='left', padx=(8, 0))
     open_btn.pack_forget()  # Hide initially
+
+    # Status bar
+    status_label = ttk.Label(frm, textvariable=status_var, foreground="blue")
+    status_label.grid(row=9, column=0, columnspan=3, sticky='w', pady=(0, 8))
 
     # Log area with clear button
     log_header = ttk.Frame(frm)

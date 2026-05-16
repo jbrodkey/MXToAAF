@@ -131,10 +131,46 @@ python3 -m mxto_aaf.cli --version
 ## Distribution
 
 ### macOS
-1. Build app bundle with `build_package.sh`
-2. Test on clean system
-3. Code sign (optional): `codesign --sign "Developer ID" dist/MXToAAF.app`
-4. Create DMG: `hdiutil create -volname "MXToAAF" -srcfolder dist/MXToAAF.app -ov -format UDZO MXToAAF-0.9.0.dmg`
+
+**Building and signing:**
+1. Build app bundle: `./build_mac.sh` (includes ad-hoc signing)
+2. Test on your system: `open dist/MXToAAF.app`
+
+**For distribution:**
+3. **Option A - Simple DMG** (users need to run `xattr -cr` command):
+   ```bash
+   cd packaging/DMG_
+   ./create_dmg.sh
+   ```
+
+4. **Option B - Properly Signed** (requires Apple Developer account):
+   ```bash
+   # Sign with Developer ID
+   codesign --deep --force --verify --verbose \
+     --sign "Developer ID Application: Your Name (TEAM_ID)" \
+     --options runtime \
+     dist/MXToAAF.app
+   
+   # Create DMG
+   cd packaging/DMG_
+   ./create_dmg.sh
+   
+   # Notarize with Apple (required for Gatekeeper)
+   xcrun notarytool submit MXToAAF_v1.0.0.dmg \
+     --apple-id your@email.com \
+     --team-id TEAM_ID \
+     --password app-specific-password \
+     --wait
+   
+   # Staple notarization ticket
+   xcrun stapler staple MXToAAF_v1.0.0.dmg
+   ```
+
+**Note:** Without proper code signing and notarization, users will see a "damaged app" error and need to run:
+```bash
+xattr -cr /path/to/MXToAAF.app
+```
+See the README in the DMG for user instructions.
 
 ### Windows
 1. Build with `build_package.sh` on Windows
